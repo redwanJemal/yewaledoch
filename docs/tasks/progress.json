@@ -1,0 +1,250 @@
+{
+  "version": 1,
+  "last_updated": "2026-03-30T00:00:00Z",
+  "current_task": null,
+  "tasks": {
+    "01-project-setup": {
+      "title": "Project Setup — Backend Foundation",
+      "status": "pending",
+      "subtasks": {
+        "backend-requirements": "pending",
+        "core-config": "pending",
+        "core-database": "pending",
+        "core-security": "pending",
+        "core-rate-limit": "pending",
+        "fastapi-main": "pending",
+        "alembic-setup": "pending",
+        "docker-compose": "pending",
+        "env-files": "pending",
+        "dockerfile": "pending",
+        "init-files": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "02-database-models": {
+      "title": "Database Models & Migrations",
+      "status": "pending",
+      "subtasks": {
+        "user-model": "pending",
+        "post-model": "pending",
+        "comment-model": "pending",
+        "like-model": "pending",
+        "save-model": "pending",
+        "report-model": "pending",
+        "scraped-draft-model": "pending",
+        "child-model": "pending",
+        "vaccination-model": "pending",
+        "milestone-model": "pending",
+        "notification-model": "pending",
+        "models-init": "pending",
+        "alembic-migration": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "03-auth-and-users-api": {
+      "title": "Auth & Users API",
+      "status": "pending",
+      "subtasks": {
+        "auth-dependencies": "pending",
+        "auth-endpoint": "pending",
+        "user-endpoints": "pending",
+        "register-router": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "04-posts-api": {
+      "title": "Posts API — Feed, CRUD, Engagement",
+      "status": "pending",
+      "subtasks": {
+        "post-feed-endpoint": "pending",
+        "post-detail-endpoint": "pending",
+        "post-create-endpoint": "pending",
+        "post-update-endpoint": "pending",
+        "post-delete-endpoint": "pending",
+        "like-toggle": "pending",
+        "save-toggle": "pending",
+        "report-endpoint": "pending",
+        "saved-posts-list": "pending",
+        "pydantic-schemas": "pending",
+        "register-routes": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "05-comments-api": {
+      "title": "Comments API",
+      "status": "pending",
+      "subtasks": {
+        "list-comments": "pending",
+        "create-comment": "pending",
+        "edit-comment": "pending",
+        "delete-comment": "pending",
+        "like-comment": "pending",
+        "report-comment": "pending",
+        "auto-promote-contributor": "pending",
+        "comment-notifications": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "06-admin-api": {
+      "title": "Admin API — Dashboard, Drafts, Management",
+      "status": "pending",
+      "subtasks": {
+        "dashboard-endpoint": "pending",
+        "draft-queue-endpoints": "pending",
+        "publish-draft": "pending",
+        "content-management": "pending",
+        "user-management": "pending",
+        "reports-resolution": "pending",
+        "scraper-trigger": "pending",
+        "broadcast-endpoint": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "07-reddit-scraper": {
+      "title": "Reddit Scraper & AI Translation Pipeline",
+      "status": "pending",
+      "subtasks": {
+        "reddit-scraper": "pending",
+        "ai-translator": "pending",
+        "pipeline-orchestrator": "pending",
+        "scraper-config": "pending",
+        "seed-data-categories": "pending",
+        "admin-notification": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "08-notifications-api": {
+      "title": "Notifications, Children & Resources API",
+      "status": "pending",
+      "subtasks": {
+        "notification-endpoints": "pending",
+        "telegram-bot-service": "pending",
+        "children-crud": "pending",
+        "vaccination-api": "pending",
+        "milestone-api": "pending",
+        "resources-api": "pending",
+        "seed-data-vaccines": "pending",
+        "seed-data-milestones": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "09-frontend-setup": {
+      "title": "Frontend Setup — React + Telegram Mini App",
+      "status": "pending",
+      "subtasks": {
+        "package-setup": "pending",
+        "vite-config": "pending",
+        "tailwind-config": "pending",
+        "telegram-sdk": "pending",
+        "api-client": "pending",
+        "i18n-setup": "pending",
+        "auth-hook": "pending",
+        "app-shell-tabs": "pending",
+        "entry-files": "pending",
+        "dockerfile": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "10-frontend-home-feed": {
+      "title": "Frontend — Home Feed & Post Detail",
+      "status": "pending",
+      "subtasks": {
+        "post-card-component": "pending",
+        "home-page": "pending",
+        "post-detail-page": "pending",
+        "comment-thread-component": "pending",
+        "comment-input-component": "pending",
+        "common-components": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "11-frontend-topics-write": {
+      "title": "Frontend — Topics & Create Post",
+      "status": "pending",
+      "subtasks": {
+        "topics-page": "pending",
+        "topic-feed-page": "pending",
+        "create-post-page": "pending",
+        "locked-write-page": "pending",
+        "post-type-selector": "pending",
+        "category-selector": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "12-frontend-profile-notifications": {
+      "title": "Frontend — Profile, Notifications, Resources",
+      "status": "pending",
+      "subtasks": {
+        "profile-page": "pending",
+        "add-child-modal": "pending",
+        "child-profile-page": "pending",
+        "vaccination-checklist": "pending",
+        "notifications-page": "pending",
+        "my-posts-page": "pending",
+        "saved-posts-page": "pending",
+        "resources-page": "pending",
+        "settings-page": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "13-admin-backoffice": {
+      "title": "Admin Backoffice — Dashboard, Drafts, Management",
+      "status": "pending",
+      "subtasks": {
+        "admin-setup": "pending",
+        "dashboard-page": "pending",
+        "draft-queue-page": "pending",
+        "draft-edit-page": "pending",
+        "content-management-page": "pending",
+        "user-management-page": "pending",
+        "reports-page": "pending",
+        "scraper-page": "pending",
+        "admin-dockerfile": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    "14-deployment": {
+      "title": "Deployment — Docker, CI/CD, Bot Setup, Seed Data",
+      "status": "pending",
+      "subtasks": {
+        "docker-compose-prod": "pending",
+        "gitlab-cicd": "pending",
+        "telegram-bot-guide": "pending",
+        "seed-posts": "pending",
+        "seed-script": "pending",
+        "nginx-configs": "pending",
+        "env-production": "pending",
+        "integration-test": "pending"
+      },
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    }
+  }
+}
