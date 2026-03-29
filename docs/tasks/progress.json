@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "last_updated": "2026-03-29T23:55:00.000000+00:00",
+  "last_updated": "2026-03-29T23:44:10.092137+00:00",
   "current_task": "03-auth-and-users-api",
   "tasks": {
     "01-project-setup": {
@@ -47,16 +47,16 @@
     },
     "03-auth-and-users-api": {
       "title": "Auth & Users API",
-      "status": "pending",
+      "status": "completed",
       "subtasks": {
-        "auth-dependencies": "pending",
-        "auth-endpoint": "pending",
-        "user-endpoints": "pending",
-        "register-router": "pending"
+        "auth-dependencies": "completed",
+        "auth-endpoint": "completed",
+        "user-endpoints": "completed",
+        "register-router": "completed"
       },
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-03-29T23:44:10Z",
+      "completed_at": "2026-03-30T00:30:00Z",
+      "notes": "Auth deps (CurrentUser, OptionalUser, AdminUser), POST /auth/telegram, GET/PATCH /users/me, GET /users/{id}. Forked from Gebeya patterns with YeWaledoch-specific fields (role, parenting_role, children_data, reputation)."
     },
     "04-posts-api": {
       "title": "Posts API \u2014 Feed, CRUD, Engagement",
