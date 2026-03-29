@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "last_updated": "2026-03-29T23:49:55.793416+00:00",
-  "current_task": "05-comments-api",
+  "last_updated": "2026-03-30T02:15:00.000000+00:00",
+  "current_task": "06-admin-api",
   "tasks": {
     "01-project-setup": {
       "title": "Project Setup \u2014 Backend Foundation",
@@ -93,24 +93,24 @@
       },
       "started_at": "2026-03-29T23:49:55Z",
       "completed_at": "2026-03-30T01:45:00Z",
-      "notes": "All comment endpoints implemented in backend/app/api/v1/comments.py. Two routers: post_comments_router (GET/POST under /posts/{id}/comments) and router (PATCH/DELETE/like/report under /comments/{id}). Features: threaded replies (one level deep), expert answer flag, anonymous comments, auto-promote member→contributor at 10 comments, notifications for post author and parent comment author, like toggle, report with duplicate prevention."
+      "notes": "All comment endpoints implemented in backend/app/api/v1/comments.py. Two routers: post_comments_router (GET/POST under /posts/{id}/comments) and router (PATCH/DELETE/like/report under /comments/{id}). Features: threaded replies (one level deep), expert answer flag, anonymous comments, auto-promote member\u2192contributor at 10 comments, notifications for post author and parent comment author, like toggle, report with duplicate prevention."
     },
     "06-admin-api": {
       "title": "Admin API \u2014 Dashboard, Drafts, Management",
-      "status": "pending",
+      "status": "completed",
       "subtasks": {
-        "dashboard-endpoint": "pending",
-        "draft-queue-endpoints": "pending",
-        "publish-draft": "pending",
-        "content-management": "pending",
-        "user-management": "pending",
-        "reports-resolution": "pending",
-        "scraper-trigger": "pending",
-        "broadcast-endpoint": "pending"
+        "dashboard-endpoint": "completed",
+        "draft-queue-endpoints": "completed",
+        "publish-draft": "completed",
+        "content-management": "completed",
+        "user-management": "completed",
+        "reports-resolution": "completed",
+        "scraper-trigger": "completed",
+        "broadcast-endpoint": "completed"
       },
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-03-29T23:51:50Z",
+      "completed_at": "2026-03-30T02:15:00Z",
+      "notes": "All admin endpoints implemented in backend/app/api/v1/admin.py. Dashboard stats, draft queue (list/edit/publish/discard), content management (list/edit/delete posts), user management (list/role/ban/unban), reports (list/resolve with remove/dismiss/ban actions), scraper trigger (background), broadcast (in-app notifications + Telegram bot messages). All endpoints require AdminUser dependency. Scraper trigger gracefully handles missing scraper module (task 07)."
     },
     "07-reddit-scraper": {
       "title": "Reddit Scraper & AI Translation Pipeline",
