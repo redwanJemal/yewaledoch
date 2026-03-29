@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "last_updated": "2026-03-29T23:44:10.092137+00:00",
-  "current_task": "03-auth-and-users-api",
+  "last_updated": "2026-03-30T01:15:00+00:00",
+  "current_task": "04-posts-api",
   "tasks": {
     "01-project-setup": {
       "title": "Project Setup \u2014 Backend Foundation",
@@ -60,23 +60,23 @@
     },
     "04-posts-api": {
       "title": "Posts API \u2014 Feed, CRUD, Engagement",
-      "status": "pending",
+      "status": "completed",
       "subtasks": {
-        "post-feed-endpoint": "pending",
-        "post-detail-endpoint": "pending",
-        "post-create-endpoint": "pending",
-        "post-update-endpoint": "pending",
-        "post-delete-endpoint": "pending",
-        "like-toggle": "pending",
-        "save-toggle": "pending",
-        "report-endpoint": "pending",
-        "saved-posts-list": "pending",
-        "pydantic-schemas": "pending",
-        "register-routes": "pending"
+        "post-feed-endpoint": "completed",
+        "post-detail-endpoint": "completed",
+        "post-create-endpoint": "completed",
+        "post-update-endpoint": "completed",
+        "post-delete-endpoint": "completed",
+        "like-toggle": "completed",
+        "save-toggle": "completed",
+        "report-endpoint": "completed",
+        "saved-posts-list": "completed",
+        "pydantic-schemas": "completed",
+        "register-routes": "completed"
       },
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-03-29T23:46:25Z",
+      "completed_at": "2026-03-30T01:15:00Z",
+      "notes": "All posts endpoints implemented in backend/app/api/v1/posts.py. Feed with pagination/filtering/sorting, CRUD with role checks, like/save toggles with counter updates, report with duplicate prevention, saved posts list. Anonymous posts hide author info. Follows Gebeya patterns."
     },
     "05-comments-api": {
       "title": "Comments API",
