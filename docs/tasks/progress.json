@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "last_updated": "2026-03-30T01:15:00+00:00",
-  "current_task": "04-posts-api",
+  "last_updated": "2026-03-29T23:49:55.793416+00:00",
+  "current_task": "05-comments-api",
   "tasks": {
     "01-project-setup": {
       "title": "Project Setup \u2014 Backend Foundation",
@@ -80,20 +80,20 @@
     },
     "05-comments-api": {
       "title": "Comments API",
-      "status": "pending",
+      "status": "completed",
       "subtasks": {
-        "list-comments": "pending",
-        "create-comment": "pending",
-        "edit-comment": "pending",
-        "delete-comment": "pending",
-        "like-comment": "pending",
-        "report-comment": "pending",
-        "auto-promote-contributor": "pending",
-        "comment-notifications": "pending"
+        "list-comments": "completed",
+        "create-comment": "completed",
+        "edit-comment": "completed",
+        "delete-comment": "completed",
+        "like-comment": "completed",
+        "report-comment": "completed",
+        "auto-promote-contributor": "completed",
+        "comment-notifications": "completed"
       },
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-03-29T23:49:55Z",
+      "completed_at": "2026-03-30T01:45:00Z",
+      "notes": "All comment endpoints implemented in backend/app/api/v1/comments.py. Two routers: post_comments_router (GET/POST under /posts/{id}/comments) and router (PATCH/DELETE/like/report under /comments/{id}). Features: threaded replies (one level deep), expert answer flag, anonymous comments, auto-promote member→contributor at 10 comments, notifications for post author and parent comment author, like toggle, report with duplicate prevention."
     },
     "06-admin-api": {
       "title": "Admin API \u2014 Dashboard, Drafts, Management",
