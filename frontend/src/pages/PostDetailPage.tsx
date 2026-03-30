@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Heart,
@@ -46,14 +46,16 @@ export function PostDetailPage({ postId, onBack, currentUser }: PostDetailPagePr
   } = useQuery({
     queryKey: ['post', postId],
     queryFn: () => postsApi.detail(postId),
-    select: (data) => {
-      // Sync local state on first load
-      setLiked(data.is_liked);
-      setLikeCount(data.like_count);
-      setSaved(data.is_saved);
-      return data;
-    },
   });
+
+  // Sync local engagement state when post data loads
+  useEffect(() => {
+    if (post) {
+      setLiked(post.is_liked);
+      setLikeCount(post.like_count);
+      setSaved(post.is_saved);
+    }
+  }, [post?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch comments
   const {
