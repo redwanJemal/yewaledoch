@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "last_updated": "2026-03-30T05:30:00.000000+00:00",
+  "last_updated": "2026-03-30T00:14:18.356102+00:00",
   "current_task": "10-frontend-home-feed",
   "tasks": {
     "01-project-setup": {
@@ -165,18 +165,18 @@
     },
     "10-frontend-home-feed": {
       "title": "Frontend \u2014 Home Feed & Post Detail",
-      "status": "pending",
+      "status": "completed",
       "subtasks": {
-        "post-card-component": "pending",
-        "home-page": "pending",
-        "post-detail-page": "pending",
-        "comment-thread-component": "pending",
-        "comment-input-component": "pending",
-        "common-components": "pending"
+        "post-card-component": "completed",
+        "home-page": "completed",
+        "post-detail-page": "completed",
+        "comment-thread-component": "completed",
+        "comment-input-component": "completed",
+        "common-components": "completed"
       },
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-03-30T00:14:18Z",
+      "completed_at": "2026-03-30T06:00:00Z",
+      "notes": "All components implemented. PostCard with like toggle, skeleton loading. HomePage with infinite scroll (IntersectionObserver), debounced search, pull-to-refresh. PostDetailPage with full content, author info, like/save/share, source attribution, threaded comments with CommentThread + CommentInput (anonymous toggle). Common components: LoadingScreen, EmptyState, CategoryBadge. i18n keys added for am/en. Build succeeds."
     },
     "11-frontend-topics-write": {
       "title": "Frontend \u2014 Topics & Create Post",

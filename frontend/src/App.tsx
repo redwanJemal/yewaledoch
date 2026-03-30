@@ -4,8 +4,10 @@ import { useTelegram } from '@/lib/telegram';
 import { useAuth } from '@/hooks/useAuth';
 import { notificationsApi } from '@/lib/api';
 import { useTranslation } from '@/lib/i18n';
+import { HomePage } from '@/pages/HomePage';
+import { PostDetailPage } from '@/pages/PostDetailPage';
 
-// Placeholder pages — will be implemented in tasks 10-12
+// Placeholder pages — will be implemented in tasks 11-12
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
@@ -144,7 +146,11 @@ function AppContent() {
   // Render overlay pages
   if (page.type === 'post-detail' && page.postId) {
     return (
-      <PlaceholderPage title={`Post: ${page.postId}`} />
+      <PostDetailPage
+        postId={page.postId}
+        onBack={() => setPage({ type: 'main' })}
+        currentUser={user}
+      />
     );
   }
 
@@ -153,7 +159,7 @@ function AppContent() {
       {/* Main Content */}
       <main className="pb-20">
         {activeTab === 'home' && (
-          <PlaceholderPage title={t('nav.home')} />
+          <HomePage onPostTap={(postId) => setPage({ type: 'post-detail', postId })} />
         )}
         {activeTab === 'topics' && (
           <PlaceholderPage title={t('nav.topics')} />

@@ -102,6 +102,29 @@ const translations: Record<Language, Record<string, string>> = {
     'write.select_type': 'ዓይነት ይምረጡ',
     'write.contributors_only': 'ጽሑፍ ለመጻፍ ተጨማሪ አስተያየት ያስፈልጋል',
 
+    // Home
+    'home.search_placeholder': 'ፈልግ...',
+    'home.empty_subtitle': 'ገና ምንም ልጥፍ የለም። በቅርቡ ይመለሱ!',
+
+    // Post
+    'post.anonymous': 'ስም አልባ',
+    'post.reputation': 'ነጥብ',
+    'post.saved': 'ተቀምጧል',
+    'post.unsaved': 'ተነስቷል',
+    'post.link_copied': 'ሊንክ ተቀድቷል',
+    'post.source_from': 'የተተረጎመ ከ',
+
+    // Comments
+    'comment.title': 'አስተያየቶች',
+    'comment.placeholder': 'አስተያየት ይጻፉ...',
+    'comment.reply_placeholder': 'መልስ ይጻፉ...',
+    'comment.anonymous_toggle': 'በስም ሳይገለጽ ጻፍ',
+    'comment.members_only': 'ለመጻፍ መግባት ያስፈልጋል',
+
+    // Report
+    'report.confirm': 'ይህን ሪፖርት ማድረግ ይፈልጋሉ?',
+    'report.submitted': 'ሪፖርት ተልኳል',
+
     // Misc
     'app.name': 'የወላጆች',
     'app.tagline': 'የኢትዮጵያ ወላጆች ማህበረሰብ',
@@ -191,6 +214,29 @@ const translations: Record<Language, Record<string, string>> = {
     'write.select_category': 'Select category',
     'write.select_type': 'Select type',
     'write.contributors_only': 'You need more comments to create posts',
+
+    // Home
+    'home.search_placeholder': 'Search...',
+    'home.empty_subtitle': 'No posts yet. Check back soon!',
+
+    // Post
+    'post.anonymous': 'Anonymous',
+    'post.reputation': 'points',
+    'post.saved': 'Saved',
+    'post.unsaved': 'Removed from saved',
+    'post.link_copied': 'Link copied',
+    'post.source_from': 'Translated from',
+
+    // Comments
+    'comment.title': 'Comments',
+    'comment.placeholder': 'Write a comment...',
+    'comment.reply_placeholder': 'Write a reply...',
+    'comment.anonymous_toggle': 'Post anonymously',
+    'comment.members_only': 'Log in to comment',
+
+    // Report
+    'report.confirm': 'Are you sure you want to report this?',
+    'report.submitted': 'Report submitted',
 
     // Misc
     'app.name': 'YeWaledoch',
