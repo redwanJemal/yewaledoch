@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.v1.admin import router as admin_router
 from app.api.v1.auth import router as auth_router
+from app.api.v1.upload import router as upload_router
 from app.api.v1.children import router as children_router
 from app.api.v1.comments import post_comments_router, router as comments_router
 from app.api.v1.notifications import router as notifications_router
@@ -23,4 +24,5 @@ router.include_router(saved_router, prefix="/saved", tags=["saved"])
 router.include_router(notifications_router, prefix="/notifications", tags=["notifications"])
 router.include_router(children_router, prefix="/children", tags=["children"])
 router.include_router(resources_router, prefix="/resources", tags=["resources"])
+router.include_router(upload_router, prefix="/upload", tags=["upload"])
 router.include_router(admin_router, prefix="/admin", tags=["admin"])

@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "last_updated": "2026-03-30T00:14:18.356102+00:00",
-  "current_task": "10-frontend-home-feed",
+  "last_updated": "2026-03-30T00:20:32.680053+00:00",
+  "current_task": "11-frontend-topics-write",
   "tasks": {
     "01-project-setup": {
       "title": "Project Setup \u2014 Backend Foundation",
@@ -180,18 +180,18 @@
     },
     "11-frontend-topics-write": {
       "title": "Frontend \u2014 Topics & Create Post",
-      "status": "pending",
+      "status": "completed",
       "subtasks": {
-        "topics-page": "pending",
-        "topic-feed-page": "pending",
-        "create-post-page": "pending",
-        "locked-write-page": "pending",
-        "post-type-selector": "pending",
-        "category-selector": "pending"
+        "topics-page": "completed",
+        "topic-feed-page": "completed",
+        "create-post-page": "completed",
+        "locked-write-page": "completed",
+        "post-type-selector": "completed",
+        "category-selector": "completed"
       },
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-03-30T00:20:32Z",
+      "completed_at": "2026-03-30T07:30:00Z",
+      "notes": "All components implemented. TopicsPage with category grid (3-col, emoji + bilingual labels). TopicFeedPage with sort tabs (latest/popular/discussed) and infinite scroll. CreatePostPage with full form (type selector, title, category, age group, body, image upload to MinIO, tags, anonymous toggle, discussion prompt, preview mode). LockedWritePage shows progress bar (comments/10). PostTypeSelector horizontal buttons. CategorySelector bottom sheet. Backend storage service (MinIO) and upload endpoint added. i18n keys for am/en. Build succeeds."
     },
     "12-frontend-profile-notifications": {
       "title": "Frontend \u2014 Profile, Notifications, Resources",

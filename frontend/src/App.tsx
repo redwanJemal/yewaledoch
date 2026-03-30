@@ -6,8 +6,11 @@ import { notificationsApi } from '@/lib/api';
 import { useTranslation } from '@/lib/i18n';
 import { HomePage } from '@/pages/HomePage';
 import { PostDetailPage } from '@/pages/PostDetailPage';
+import { TopicsPage } from '@/pages/TopicsPage';
+import { TopicFeedPage } from '@/pages/TopicFeedPage';
+import { CreatePostPage, LockedWritePage } from '@/pages/CreatePostPage';
 
-// Placeholder pages — will be implemented in tasks 11-12
+// Placeholder pages — will be implemented in task 12
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
@@ -17,13 +20,14 @@ function PlaceholderPage({ title }: { title: string }) {
 }
 
 type TabType = 'home' | 'topics' | 'write' | 'alerts' | 'me';
-type PageType = 'main' | 'post-detail' | 'profile' | 'settings' | 'child-profile' | 'saved-posts' | 'my-posts';
+type PageType = 'main' | 'post-detail' | 'topic-feed' | 'profile' | 'settings' | 'child-profile' | 'saved-posts' | 'my-posts';
 
 interface PageState {
   type: PageType;
   postId?: string;
   userId?: string;
   childId?: string;
+  category?: string;
 }
 
 function AppContent() {
@@ -154,6 +158,18 @@ function AppContent() {
     );
   }
 
+  if (page.type === 'topic-feed' && page.category) {
+    return (
+      <div className="min-h-screen bg-tg-bg text-tg-text">
+        <TopicFeedPage
+          category={page.category}
+          onBack={() => setPage({ type: 'main' })}
+          onPostTap={(postId) => setPage({ type: 'post-detail', postId })}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-tg-bg text-tg-text">
       {/* Main Content */}
@@ -162,15 +178,19 @@ function AppContent() {
           <HomePage onPostTap={(postId) => setPage({ type: 'post-detail', postId })} />
         )}
         {activeTab === 'topics' && (
-          <PlaceholderPage title={t('nav.topics')} />
+          <TopicsPage
+            onCategoryTap={(category) => setPage({ type: 'topic-feed', category })}
+          />
         )}
         {activeTab === 'write' && (
-          canWrite
-            ? <PlaceholderPage title={t('nav.write')} />
-            : <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
-                <p className="text-4xl mb-4">✍️</p>
-                <p className="text-tg-hint">{t('write.contributors_only')}</p>
-              </div>
+          canWrite && user
+            ? <CreatePostPage
+                user={user}
+                onSuccess={(postId) => setPage({ type: 'post-detail', postId })}
+              />
+            : user
+              ? <LockedWritePage user={user} />
+              : <PlaceholderPage title={t('nav.write')} />
         )}
         {activeTab === 'alerts' && (
           <PlaceholderPage title={t('nav.alerts')} />
