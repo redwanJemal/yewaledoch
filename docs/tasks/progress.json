@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "last_updated": "2026-03-30T00:57:50.000000+00:00",
-  "current_task": "14-deployment",
+  "last_updated": "2026-03-30T00:59:52.643273+00:00",
+  "current_task": null,
   "tasks": {
     "01-project-setup": {
-      "title": "Project Setup — Backend Foundation",
+      "title": "Project Setup \u2014 Backend Foundation",
       "status": "completed",
       "subtasks": {
         "backend-requirements": "completed",
@@ -59,7 +59,7 @@
       "notes": "Auth deps (CurrentUser, OptionalUser, AdminUser), POST /auth/telegram, GET/PATCH /users/me, GET /users/{id}. Forked from Gebeya patterns with YeWaledoch-specific fields (role, parenting_role, children_data, reputation)."
     },
     "04-posts-api": {
-      "title": "Posts API — Feed, CRUD, Engagement",
+      "title": "Posts API \u2014 Feed, CRUD, Engagement",
       "status": "completed",
       "subtasks": {
         "post-feed-endpoint": "completed",
@@ -93,10 +93,10 @@
       },
       "started_at": "2026-03-29T23:49:55Z",
       "completed_at": "2026-03-30T01:45:00Z",
-      "notes": "All comment endpoints implemented in backend/app/api/v1/comments.py. Two routers: post_comments_router (GET/POST under /posts/{id}/comments) and router (PATCH/DELETE/like/report under /comments/{id}). Features: threaded replies (one level deep), expert answer flag, anonymous comments, auto-promote member→contributor at 10 comments, notifications for post author and parent comment author, like toggle, report with duplicate prevention."
+      "notes": "All comment endpoints implemented in backend/app/api/v1/comments.py. Two routers: post_comments_router (GET/POST under /posts/{id}/comments) and router (PATCH/DELETE/like/report under /comments/{id}). Features: threaded replies (one level deep), expert answer flag, anonymous comments, auto-promote member\u2192contributor at 10 comments, notifications for post author and parent comment author, like toggle, report with duplicate prevention."
     },
     "06-admin-api": {
-      "title": "Admin API — Dashboard, Drafts, Management",
+      "title": "Admin API \u2014 Dashboard, Drafts, Management",
       "status": "completed",
       "subtasks": {
         "dashboard-endpoint": "completed",
@@ -145,7 +145,7 @@
       "notes": "All endpoints implemented. Notification API (list/mark-read/mark-all-read), Telegram bot service (send notifications with deep links, comment/like/expert reply notifications, batched broadcast), Children CRUD with auto-populated Ethiopian EPI vaccination schedule, vaccination logging (updates pending or creates new), milestone logging, resources API serving seed data (vaccines, milestones, categories). Routes registered at /notifications, /children, /resources."
     },
     "09-frontend-setup": {
-      "title": "Frontend Setup — React + Telegram Mini App",
+      "title": "Frontend Setup \u2014 React + Telegram Mini App",
       "status": "completed",
       "subtasks": {
         "package-setup": "completed",
@@ -164,7 +164,7 @@
       "notes": "All frontend foundation files created. Forked from Gebeya patterns. React 18 + Vite 5 + Tailwind CSS 3 + Telegram SDK. API client with full TypeScript types for all models. i18n with Amharic/English. Auth hook with dev mode mock. 5-tab navigation (Home, Topics, Write, Alerts, Me). Deep link support for posts. npm run build succeeds."
     },
     "10-frontend-home-feed": {
-      "title": "Frontend — Home Feed & Post Detail",
+      "title": "Frontend \u2014 Home Feed & Post Detail",
       "status": "completed",
       "subtasks": {
         "post-card-component": "completed",
@@ -179,7 +179,7 @@
       "notes": "All components implemented. PostCard with like toggle, skeleton loading. HomePage with infinite scroll (IntersectionObserver), debounced search, pull-to-refresh. PostDetailPage with full content, author info, like/save/share, source attribution, threaded comments with CommentThread + CommentInput (anonymous toggle). Common components: LoadingScreen, EmptyState, CategoryBadge. i18n keys added for am/en. Build succeeds."
     },
     "11-frontend-topics-write": {
-      "title": "Frontend — Topics & Create Post",
+      "title": "Frontend \u2014 Topics & Create Post",
       "status": "completed",
       "subtasks": {
         "topics-page": "completed",
@@ -194,7 +194,7 @@
       "notes": "All components implemented. TopicsPage with category grid (3-col, emoji + bilingual labels). TopicFeedPage with sort tabs (latest/popular/discussed) and infinite scroll. CreatePostPage with full form (type selector, title, category, age group, body, image upload to MinIO, tags, anonymous toggle, discussion prompt, preview mode). LockedWritePage shows progress bar (comments/10). PostTypeSelector horizontal buttons. CategorySelector bottom sheet. Backend storage service (MinIO) and upload endpoint added. i18n keys for am/en. Build succeeds."
     },
     "12-frontend-profile-notifications": {
-      "title": "Frontend — Profile, Notifications, Resources",
+      "title": "Frontend \u2014 Profile, Notifications, Resources",
       "status": "completed",
       "subtasks": {
         "profile-page": "completed",
@@ -212,7 +212,7 @@
       "notes": "All 9 subtasks implemented. ProfilePage with user info, stats, children list, quick links. AddChildModal with form. ChildProfilePage with vaccinations (VaccinationChecklist) and milestones tabs. NotificationsPage with date grouping, mark all read, tap-to-navigate. MyPostsPage and SavedPostsPage with PostCard list. ResourcesPage with vaccines, milestones, recipes, emergency contacts, pregnancy guide. SettingsPage with language toggle, notification prefs, edit profile, about. Backend: added /posts/mine endpoint, fixed /posts/saved route. i18n keys added for am/en. Build succeeds."
     },
     "13-admin-backoffice": {
-      "title": "Admin Backoffice — Dashboard, Drafts, Management",
+      "title": "Admin Backoffice \u2014 Dashboard, Drafts, Management",
       "status": "completed",
       "subtasks": {
         "admin-setup": "completed",
@@ -230,7 +230,7 @@
       "notes": "Admin backoffice built as separate React SPA (admin/). Setup: Vite 5 on port 5174, Tailwind CSS, React Router, React Query. No Telegram SDK. Login: JWT token or Telegram initData with admin role check. Sidebar navigation (Dashboard, Draft Queue, Content, Users, Reports, Scraper). DashboardPage: stat cards, quick actions (run scraper, broadcast). DraftQueuePage: table with status tabs, bulk actions, publish/discard. DraftEditPage: side-by-side English/Amharic editor with preview. ContentManagementPage: search/filter, pin/feature/delete. UserManagementPage: search/filter, role change, ban/unban with modal. ReportsPage: pending/resolved tabs, dismiss/remove/ban actions. ScraperPage: run scraper, subreddit sources list. Dockerfile with nginx. Build succeeds."
     },
     "14-deployment": {
-      "title": "Deployment — Docker, CI/CD, Bot Setup, Seed Data",
+      "title": "Deployment \u2014 Docker, CI/CD, Bot Setup, Seed Data",
       "status": "completed",
       "subtasks": {
         "docker-compose-prod": "completed",
