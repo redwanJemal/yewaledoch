@@ -23,7 +23,7 @@ const CATEGORY_CONFIG: Record<string, { icon: string }> = {
   fun_activities: { icon: '🎨' },
 };
 
-type SortType = 'latest' | 'popular' | 'trending';
+type SortType = 'latest' | 'popular' | 'discussed';
 
 interface TopicFeedPageProps {
   category: string;
@@ -83,7 +83,7 @@ export function TopicFeedPage({ category, onBack, onPostTap }: TopicFeedPageProp
   const sortTabs: { key: SortType; label: string }[] = [
     { key: 'latest', label: t('sort.latest') },
     { key: 'popular', label: t('sort.popular') },
-    { key: 'trending', label: t('sort.discussed') },
+    { key: 'discussed', label: t('sort.discussed') },
   ];
 
   return (

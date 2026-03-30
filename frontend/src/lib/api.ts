@@ -157,7 +157,7 @@ export interface PostFeedParams {
   post_type?: PostType;
   age_group?: string;
   search?: string;
-  sort?: 'latest' | 'popular' | 'trending';
+  sort?: 'latest' | 'popular' | 'discussed';
   language?: string;
 }
 
