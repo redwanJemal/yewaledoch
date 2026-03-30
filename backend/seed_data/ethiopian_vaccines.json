@@ -1,0 +1,55 @@
+[
+  {
+    "age": "At birth",
+    "age_weeks": 0,
+    "vaccines": [
+      {"name": "BCG", "name_am": "ቢሲጂ", "dose": 1, "description": "Bacillus Calmette-Guerin (Tuberculosis)", "description_am": "የሳንባ ነቀርሳ ክትባት"},
+      {"name": "OPV-0", "name_am": "ኦፒቪ-0", "dose": 0, "description": "Oral Polio Vaccine (birth dose)", "description_am": "የፖሊዮ ክትባት (የልደት)"}
+    ]
+  },
+  {
+    "age": "6 weeks",
+    "age_weeks": 6,
+    "vaccines": [
+      {"name": "Pentavalent", "name_am": "ፔንታቫለንት", "dose": 1, "description": "DPT-HepB-Hib (5-in-1)", "description_am": "5 በ 1 ክትባት"},
+      {"name": "OPV", "name_am": "ኦፒቪ", "dose": 1, "description": "Oral Polio Vaccine", "description_am": "የፖሊዮ ክትባት"},
+      {"name": "PCV", "name_am": "ፒሲቪ", "dose": 1, "description": "Pneumococcal Conjugate Vaccine", "description_am": "የኒሞኒያ ክትባት"},
+      {"name": "Rotavirus", "name_am": "ሮታቫይረስ", "dose": 1, "description": "Rotavirus Vaccine", "description_am": "የሮታቫይረስ ክትባት"}
+    ]
+  },
+  {
+    "age": "10 weeks",
+    "age_weeks": 10,
+    "vaccines": [
+      {"name": "Pentavalent", "name_am": "ፔንታቫለንት", "dose": 2, "description": "DPT-HepB-Hib (5-in-1)", "description_am": "5 በ 1 ክትባት"},
+      {"name": "OPV", "name_am": "ኦፒቪ", "dose": 2, "description": "Oral Polio Vaccine", "description_am": "የፖሊዮ ክትባት"},
+      {"name": "PCV", "name_am": "ፒሲቪ", "dose": 2, "description": "Pneumococcal Conjugate Vaccine", "description_am": "የኒሞኒያ ክትባት"},
+      {"name": "Rotavirus", "name_am": "ሮታቫይረስ", "dose": 2, "description": "Rotavirus Vaccine", "description_am": "የሮታቫይረስ ክትባት"}
+    ]
+  },
+  {
+    "age": "14 weeks",
+    "age_weeks": 14,
+    "vaccines": [
+      {"name": "Pentavalent", "name_am": "ፔንታቫለንት", "dose": 3, "description": "DPT-HepB-Hib (5-in-1)", "description_am": "5 በ 1 ክትባት"},
+      {"name": "OPV", "name_am": "ኦፒቪ", "dose": 3, "description": "Oral Polio Vaccine", "description_am": "የፖሊዮ ክትባት"},
+      {"name": "PCV", "name_am": "ፒሲቪ", "dose": 3, "description": "Pneumococcal Conjugate Vaccine", "description_am": "የኒሞኒያ ክትባት"},
+      {"name": "IPV", "name_am": "አይፒቪ", "dose": 1, "description": "Inactivated Polio Vaccine", "description_am": "የፖሊዮ ክትባት (በመርፌ)"}
+    ]
+  },
+  {
+    "age": "9 months",
+    "age_weeks": 36,
+    "vaccines": [
+      {"name": "Measles", "name_am": "ኩፍኝ", "dose": 1, "description": "Measles Vaccine", "description_am": "የኩፍኝ ክትባት"},
+      {"name": "Vitamin A", "name_am": "ቫይታሚን ኤ", "dose": 1, "description": "Vitamin A Supplementation", "description_am": "የቫይታሚን ኤ ተጨማሪ"}
+    ]
+  },
+  {
+    "age": "15 months",
+    "age_weeks": 60,
+    "vaccines": [
+      {"name": "Measles", "name_am": "ኩፍኝ", "dose": 2, "description": "Measles Vaccine (2nd dose)", "description_am": "የኩፍኝ ክትባት (2ኛ)"}
+    ]
+  }
+]
