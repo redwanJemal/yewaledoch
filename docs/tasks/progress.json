@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "last_updated": "2026-03-30T00:30:27.150321+00:00",
-  "current_task": "12-frontend-profile-notifications",
+  "last_updated": "2026-03-30T00:41:34.689153+00:00",
+  "current_task": "13-admin-backoffice",
   "tasks": {
     "01-project-setup": {
       "title": "Project Setup \u2014 Backend Foundation",
@@ -213,21 +213,21 @@
     },
     "13-admin-backoffice": {
       "title": "Admin Backoffice \u2014 Dashboard, Drafts, Management",
-      "status": "pending",
+      "status": "completed",
       "subtasks": {
-        "admin-setup": "pending",
-        "dashboard-page": "pending",
-        "draft-queue-page": "pending",
-        "draft-edit-page": "pending",
-        "content-management-page": "pending",
-        "user-management-page": "pending",
-        "reports-page": "pending",
-        "scraper-page": "pending",
-        "admin-dockerfile": "pending"
+        "admin-setup": "completed",
+        "dashboard-page": "completed",
+        "draft-queue-page": "completed",
+        "draft-edit-page": "completed",
+        "content-management-page": "completed",
+        "user-management-page": "completed",
+        "reports-page": "completed",
+        "scraper-page": "completed",
+        "admin-dockerfile": "completed"
       },
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-03-30T00:41:34Z",
+      "completed_at": "2026-03-30T02:30:00Z",
+      "notes": "Admin backoffice built as separate React SPA (admin/). Setup: Vite 5 on port 5174, Tailwind CSS, React Router, React Query. No Telegram SDK. Login: JWT token or Telegram initData with admin role check. Sidebar navigation (Dashboard, Draft Queue, Content, Users, Reports, Scraper). DashboardPage: stat cards, quick actions (run scraper, broadcast). DraftQueuePage: table with status tabs, bulk actions, publish/discard. DraftEditPage: side-by-side English/Amharic editor with preview. ContentManagementPage: search/filter, pin/feature/delete. UserManagementPage: search/filter, role change, ban/unban with modal. ReportsPage: pending/resolved tabs, dismiss/remove/ban actions. ScraperPage: run scraper, subreddit sources list. Dockerfile with nginx. Build succeeds."
     },
     "14-deployment": {
       "title": "Deployment \u2014 Docker, CI/CD, Bot Setup, Seed Data",
