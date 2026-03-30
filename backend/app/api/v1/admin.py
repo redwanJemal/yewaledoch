@@ -758,22 +758,20 @@ async def trigger_scraper(
     admin: AdminUser,
     background_tasks: BackgroundTasks,
 ):
-    """Trigger the Reddit scraper manually (runs in background)."""
+    """Trigger the Reddit scraper pipeline manually (runs in background)."""
 
     async def run_scraper() -> None:
-        """Run scraper in background."""
+        """Run scraper pipeline in background."""
         try:
-            from scraper.reddit_scraper import scrape_reddit
-            await scrape_reddit()
-        except ImportError:
-            # Scraper module not yet implemented (task 07)
-            pass
+            from scraper.scheduler import run_pipeline
+            await run_pipeline()
         except Exception:
-            pass
+            import structlog
+            structlog.get_logger(__name__).error("background_scraper_failed", exc_info=True)
 
     background_tasks.add_task(asyncio.to_thread, lambda: asyncio.run(run_scraper()))
 
-    return {"message": "Scraper triggered in background"}
+    return {"message": "Scraper pipeline triggered in background"}
 
 
 # --- Broadcast ---

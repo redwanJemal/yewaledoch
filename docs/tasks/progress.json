@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "last_updated": "2026-03-30T02:15:00.000000+00:00",
-  "current_task": "06-admin-api",
+  "last_updated": "2026-03-29T23:55:49.449345+00:00",
+  "current_task": "07-reddit-scraper",
   "tasks": {
     "01-project-setup": {
       "title": "Project Setup \u2014 Backend Foundation",
@@ -114,18 +114,18 @@
     },
     "07-reddit-scraper": {
       "title": "Reddit Scraper & AI Translation Pipeline",
-      "status": "pending",
+      "status": "completed",
       "subtasks": {
-        "reddit-scraper": "pending",
-        "ai-translator": "pending",
-        "pipeline-orchestrator": "pending",
-        "scraper-config": "pending",
-        "seed-data-categories": "pending",
-        "admin-notification": "pending"
+        "reddit-scraper": "completed",
+        "ai-translator": "completed",
+        "pipeline-orchestrator": "completed",
+        "scraper-config": "completed",
+        "seed-data-categories": "completed",
+        "admin-notification": "completed"
       },
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-03-29T23:55:49Z",
+      "completed_at": "2026-03-30T03:00:00Z",
+      "notes": "All scraper modules implemented: reddit_scraper.py (async httpx, rate-limited), translator.py (Claude API with cultural adaptation), scheduler.py (pipeline orchestrator with Telegram admin notifications). Categories seed data created. Admin scraper trigger updated to use run_pipeline. Runnable via python -m scraper.scheduler or POST /admin/scraper/run."
     },
     "08-notifications-api": {
       "title": "Notifications, Children & Resources API",

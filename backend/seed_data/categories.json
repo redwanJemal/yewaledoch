@@ -1,0 +1,14 @@
+[
+  {"slug": "pregnancy", "name_am": "እርግዝና", "name_en": "Pregnancy", "icon": "🤰"},
+  {"slug": "newborn", "name_am": "ሕፃናት", "name_en": "Newborn (0-1yr)", "icon": "👶"},
+  {"slug": "toddler", "name_am": "ትንንሽ ልጆች", "name_en": "Toddler (1-3yr)", "icon": "💸"},
+  {"slug": "school_age", "name_am": "ት/ቤት ዕድሜ", "name_en": "School Age (4-12)", "icon": "📚"},
+  {"slug": "teens", "name_am": "ታዳጊዎች", "name_en": "Teens (13-18)", "icon": "🧑"},
+  {"slug": "health", "name_am": "ጤና", "name_en": "Health", "icon": "🏥"},
+  {"slug": "nutrition", "name_am": "ምግብ", "name_en": "Nutrition", "icon": "🍲"},
+  {"slug": "dads", "name_am": "አባቶች", "name_en": "Dads", "icon": "👨"},
+  {"slug": "mental_health", "name_am": "የአእምሮ ጤና", "name_en": "Mental Health", "icon": "🧠"},
+  {"slug": "special_needs", "name_am": "ልዩ ፍላጎት", "name_en": "Special Needs", "icon": "💜"},
+  {"slug": "education", "name_am": "ትምህርት", "name_en": "Education", "icon": "🎓"},
+  {"slug": "fun_activities", "name_am": "መዝናኛ", "name_en": "Fun & Activities", "icon": "🎨"}
+]
