@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "last_updated": "2026-03-30T00:20:32.680053+00:00",
-  "current_task": "11-frontend-topics-write",
+  "last_updated": "2026-03-30T00:30:27.150321+00:00",
+  "current_task": "12-frontend-profile-notifications",
   "tasks": {
     "01-project-setup": {
       "title": "Project Setup \u2014 Backend Foundation",
@@ -195,21 +195,21 @@
     },
     "12-frontend-profile-notifications": {
       "title": "Frontend \u2014 Profile, Notifications, Resources",
-      "status": "pending",
+      "status": "completed",
       "subtasks": {
-        "profile-page": "pending",
-        "add-child-modal": "pending",
-        "child-profile-page": "pending",
-        "vaccination-checklist": "pending",
-        "notifications-page": "pending",
-        "my-posts-page": "pending",
-        "saved-posts-page": "pending",
-        "resources-page": "pending",
-        "settings-page": "pending"
+        "profile-page": "completed",
+        "add-child-modal": "completed",
+        "child-profile-page": "completed",
+        "vaccination-checklist": "completed",
+        "notifications-page": "completed",
+        "my-posts-page": "completed",
+        "saved-posts-page": "completed",
+        "resources-page": "completed",
+        "settings-page": "completed"
       },
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-03-30T00:30:27Z",
+      "completed_at": "2026-03-30T01:15:00Z",
+      "notes": "All 9 subtasks implemented. ProfilePage with user info, stats, children list, quick links. AddChildModal with form. ChildProfilePage with vaccinations (VaccinationChecklist) and milestones tabs. NotificationsPage with date grouping, mark all read, tap-to-navigate. MyPostsPage and SavedPostsPage with PostCard list. ResourcesPage with vaccines, milestones, recipes, emergency contacts, pregnancy guide. SettingsPage with language toggle, notification prefs, edit profile, about. Backend: added /posts/mine endpoint, fixed /posts/saved route. i18n keys added for am/en. Build succeeds."
     },
     "13-admin-backoffice": {
       "title": "Admin Backoffice \u2014 Dashboard, Drafts, Management",

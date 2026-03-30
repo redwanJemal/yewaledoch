@@ -9,35 +9,34 @@ import { PostDetailPage } from '@/pages/PostDetailPage';
 import { TopicsPage } from '@/pages/TopicsPage';
 import { TopicFeedPage } from '@/pages/TopicFeedPage';
 import { CreatePostPage, LockedWritePage } from '@/pages/CreatePostPage';
-
-// Placeholder pages — will be implemented in task 12
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <p className="text-tg-hint text-lg">{title}</p>
-    </div>
-  );
-}
+import { ProfilePage } from '@/pages/ProfilePage';
+import { NotificationsPage } from '@/pages/NotificationsPage';
+import { ChildProfilePage } from '@/pages/ChildProfilePage';
+import { MyPostsPage } from '@/pages/MyPostsPage';
+import { SavedPostsPage } from '@/pages/SavedPostsPage';
+import { ResourcesPage } from '@/pages/ResourcesPage';
+import { SettingsPage } from '@/pages/SettingsPage';
+import { AddChildModal } from '@/components/AddChildModal';
 
 type TabType = 'home' | 'topics' | 'write' | 'alerts' | 'me';
-type PageType = 'main' | 'post-detail' | 'topic-feed' | 'profile' | 'settings' | 'child-profile' | 'saved-posts' | 'my-posts';
+type PageType = 'main' | 'post-detail' | 'topic-feed' | 'child-profile' | 'my-posts' | 'saved-posts' | 'resources' | 'settings';
 
 interface PageState {
   type: PageType;
   postId?: string;
-  userId?: string;
   childId?: string;
   category?: string;
 }
 
 function AppContent() {
-  const { isLoading, isAuthenticated, error, user } = useAuth();
+  const { isLoading, isAuthenticated, error, user, refreshUser } = useAuth();
   const { haptic, isInTelegram, webApp } = useTelegram();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [page, setPage] = useState<PageState>({ type: 'main' });
   const [unreadCount, setUnreadCount] = useState(0);
   const lastUnreadRef = useRef(0);
+  const [showAddChild, setShowAddChild] = useState(false);
 
   // Handle deep links — ?startapp=p_{postId}
   useEffect(() => {
@@ -119,6 +118,29 @@ function AppContent() {
     }
   };
 
+  const handleProfileNavigate = (pageName: string, data?: Record<string, string>) => {
+    switch (pageName) {
+      case 'my-posts':
+        setPage({ type: 'my-posts' });
+        break;
+      case 'saved-posts':
+        setPage({ type: 'saved-posts' });
+        break;
+      case 'resources':
+        setPage({ type: 'resources' });
+        break;
+      case 'settings':
+        setPage({ type: 'settings' });
+        break;
+      case 'child-profile':
+        if (data?.childId) setPage({ type: 'child-profile', childId: data.childId });
+        break;
+      case 'add-child':
+        setShowAddChild(true);
+        break;
+    }
+  };
+
   // Check if user can write (contributor+)
   const canWrite = user && ['contributor', 'expert', 'admin'].includes(user.role);
 
@@ -147,7 +169,7 @@ function AppContent() {
     );
   }
 
-  // Render overlay pages
+  // Render overlay pages (full-screen, no bottom nav)
   if (page.type === 'post-detail' && page.postId) {
     return (
       <PostDetailPage
@@ -167,6 +189,49 @@ function AppContent() {
           onPostTap={(postId) => setPage({ type: 'post-detail', postId })}
         />
       </div>
+    );
+  }
+
+  if (page.type === 'child-profile' && page.childId) {
+    return (
+      <ChildProfilePage
+        childId={page.childId}
+        onBack={() => setPage({ type: 'main' })}
+      />
+    );
+  }
+
+  if (page.type === 'my-posts') {
+    return (
+      <MyPostsPage
+        onBack={() => setPage({ type: 'main' })}
+        onPostTap={(postId) => setPage({ type: 'post-detail', postId })}
+      />
+    );
+  }
+
+  if (page.type === 'saved-posts') {
+    return (
+      <SavedPostsPage
+        onBack={() => setPage({ type: 'main' })}
+        onPostTap={(postId) => setPage({ type: 'post-detail', postId })}
+      />
+    );
+  }
+
+  if (page.type === 'resources') {
+    return (
+      <ResourcesPage onBack={() => setPage({ type: 'main' })} />
+    );
+  }
+
+  if (page.type === 'settings' && user) {
+    return (
+      <SettingsPage
+        user={user}
+        onBack={() => setPage({ type: 'main' })}
+        onUserUpdate={refreshUser}
+      />
     );
   }
 
@@ -190,15 +255,30 @@ function AppContent() {
               />
             : user
               ? <LockedWritePage user={user} />
-              : <PlaceholderPage title={t('nav.write')} />
+              : null
         )}
         {activeTab === 'alerts' && (
-          <PlaceholderPage title={t('nav.alerts')} />
+          <NotificationsPage
+            onPostTap={(postId) => setPage({ type: 'post-detail', postId })}
+          />
         )}
-        {activeTab === 'me' && (
-          <PlaceholderPage title={t('nav.me')} />
+        {activeTab === 'me' && user && (
+          <ProfilePage user={user} onNavigate={handleProfileNavigate} />
         )}
       </main>
+
+      {/* Add Child Modal */}
+      {showAddChild && (
+        <AddChildModal
+          onClose={() => setShowAddChild(false)}
+          onSaved={() => {
+            setShowAddChild(false);
+            // Force re-render of profile to refresh children list
+            setActiveTab('home');
+            setTimeout(() => setActiveTab('me'), 0);
+          }}
+        />
+      )}
 
       {/* Bottom Navigation */}
       {isAuthenticated && page.type === 'main' && (

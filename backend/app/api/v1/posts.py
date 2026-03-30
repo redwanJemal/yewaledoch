@@ -19,6 +19,7 @@ from app.models.user import User
 
 router = APIRouter()
 saved_router = APIRouter()
+mine_router = APIRouter()
 
 
 # --- Schemas ---
@@ -571,6 +572,74 @@ async def list_saved_posts(
 
     items = [
         post_to_response(p, is_liked=str(p.id) in liked_ids, is_saved=True)
+        for p in posts
+    ]
+
+    return PostListResponse(
+        items=items,
+        total=total,
+        page=page,
+        per_page=per_page,
+        has_more=(offset + len(items)) < total,
+    )
+
+
+# --- My Posts ---
+
+
+@mine_router.get("", response_model=PostListResponse)
+async def list_my_posts(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=50),
+    user: CurrentUser = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """List posts created by the current user."""
+    query = (
+        select(Post)
+        .where(Post.author_id == user.id)
+        .where(Post.status != "removed")
+        .options(selectinload(Post.author))
+    )
+
+    # Count
+    count_query = select(func.count()).select_from(query.subquery())
+    total = (await db.execute(count_query)).scalar() or 0
+
+    # Paginate
+    offset = (page - 1) * per_page
+    query = query.order_by(Post.created_at.desc()).offset(offset).limit(per_page)
+
+    result = await db.execute(query)
+    posts = result.scalars().all()
+
+    # Check liked/saved
+    liked_ids: set[str] = set()
+    saved_ids: set[str] = set()
+    post_ids = [p.id for p in posts]
+    if post_ids:
+        like_result = await db.execute(
+            select(Like.post_id).where(
+                Like.user_id == user.id,
+                Like.post_id.in_(post_ids),
+            )
+        )
+        liked_ids = {str(lid) for lid in like_result.scalars().all()}
+
+        save_result = await db.execute(
+            select(Save.post_id).where(
+                Save.user_id == user.id,
+                Save.post_id.in_(post_ids),
+            )
+        )
+        saved_ids = {str(sid) for sid in save_result.scalars().all()}
+
+    items = [
+        post_to_response(
+            p,
+            is_liked=str(p.id) in liked_ids,
+            is_saved=str(p.id) in saved_ids,
+        )
         for p in posts
     ]
 

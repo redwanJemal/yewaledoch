@@ -427,6 +427,14 @@ export const postsApi = {
     const query = searchParams.toString();
     return request<PostListResponse>(`/posts/saved${query ? `?${query}` : ''}`);
   },
+
+  mine: (params: { page?: number; per_page?: number } = {}) => {
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.set('page', String(params.page));
+    if (params.per_page) searchParams.set('per_page', String(params.per_page));
+    const query = searchParams.toString();
+    return request<PostListResponse>(`/posts/mine${query ? `?${query}` : ''}`);
+  },
 };
 
 export const commentsApi = {
