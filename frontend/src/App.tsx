@@ -36,34 +36,20 @@ function AppContent() {
   const { haptic, isInTelegram, webApp } = useTelegram();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('home');
-  const [page, setPage] = useState<PageState>({ type: 'main' });
+  const [page, setPage] = useState<PageState>(() => {
+    // Check for deep link on initial mount
+    const sp = webApp?.initDataUnsafe?.start_param;
+    if (sp?.startsWith('p_')) return { type: 'post-detail', postId: sp.slice(2) };
+    const urlParams = new URLSearchParams(window.location.search);
+    const startapp = urlParams.get('startapp');
+    if (startapp?.startsWith('p_')) return { type: 'post-detail', postId: startapp.slice(2) };
+    return { type: 'main' };
+  });
   const [unreadCount, setUnreadCount] = useState(0);
   const lastUnreadRef = useRef(0);
   const [showAddChild, setShowAddChild] = useState(false);
 
-  // Handle deep links — ?startapp=p_{postId}
-  useEffect(() => {
-    if (isLoading) return;
-
-    const handleDeepLink = () => {
-      const startParam = webApp?.initDataUnsafe?.start_param;
-      if (startParam?.startsWith('p_')) {
-        const postId = startParam.slice(2);
-        setPage({ type: 'post-detail', postId });
-        return;
-      }
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const startapp = urlParams.get('startapp');
-      if (startapp?.startsWith('p_')) {
-        const postId = startapp.slice(2);
-        setPage({ type: 'post-detail', postId });
-        return;
-      }
-    };
-
-    handleDeepLink();
-  }, [webApp, isLoading]);
+  // Deep link is handled in useState initializer above
 
   // Poll for unread notifications
   useEffect(() => {
