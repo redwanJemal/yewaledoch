@@ -23,9 +23,28 @@ def _get_client() -> Minio:
 
 
 def _ensure_bucket(client: Minio) -> None:
-    """Create bucket if it doesn't exist."""
+    """Create bucket if it doesn't exist, with public read policy."""
+    import json
+
     if not client.bucket_exists(settings.MINIO_BUCKET):
         client.make_bucket(settings.MINIO_BUCKET)
+
+    # Set public read policy so uploaded images are accessible
+    policy = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"AWS": "*"},
+                "Action": ["s3:GetObject"],
+                "Resource": [f"arn:aws:s3:::{settings.MINIO_BUCKET}/*"],
+            }
+        ],
+    }
+    try:
+        client.set_bucket_policy(settings.MINIO_BUCKET, json.dumps(policy))
+    except S3Error:
+        pass  # Policy may already be set
 
 
 ALLOWED_CONTENT_TYPES = {

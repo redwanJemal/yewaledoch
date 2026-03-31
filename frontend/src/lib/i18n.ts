@@ -209,6 +209,7 @@ const translations: Record<Language, Record<string, string>> = {
     'post.reputation': 'ነጥብ',
     'post.saved': 'ተቀምጧል',
     'post.unsaved': 'ተነስቷል',
+    'post.updated': 'ተዘምኗል',
     'post.link_copied': 'ሊንክ ተቀድቷል',
     'post.source_from': 'የተተረጎመ ከ',
 
@@ -420,6 +421,7 @@ const translations: Record<Language, Record<string, string>> = {
     'post.reputation': 'points',
     'post.saved': 'Saved',
     'post.unsaved': 'Removed from saved',
+    'post.updated': 'Post updated',
     'post.link_copied': 'Link copied',
     'post.source_from': 'Translated from',
 
