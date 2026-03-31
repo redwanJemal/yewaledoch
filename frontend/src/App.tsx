@@ -20,6 +20,21 @@ import { EditPostPage } from '@/pages/EditPostPage';
 import { AddChildModal } from '@/components/AddChildModal';
 import type { Post } from '@/lib/api';
 
+// Parse deep link at module level — guaranteed to run before any React rendering
+function getInitialDeepLink(): { type: 'post-detail'; postId: string } | null {
+  try {
+    const tg = window.Telegram?.WebApp;
+    const sp = tg?.initDataUnsafe?.start_param;
+    if (sp?.startsWith('p_')) return { type: 'post-detail', postId: sp.slice(2) };
+  } catch { /* ignore */ }
+  try {
+    const startapp = new URLSearchParams(window.location.search).get('startapp');
+    if (startapp?.startsWith('p_')) return { type: 'post-detail', postId: startapp.slice(2) };
+  } catch { /* ignore */ }
+  return null;
+}
+const DEEP_LINK = getInitialDeepLink();
+
 type TabType = 'home' | 'topics' | 'write' | 'alerts' | 'me';
 type PageType = 'main' | 'post-detail' | 'edit-post' | 'topic-feed' | 'child-profile' | 'my-posts' | 'saved-posts' | 'resources' | 'settings';
 
@@ -33,18 +48,10 @@ interface PageState {
 
 function AppContent() {
   const { isLoading, isAuthenticated, error, user, refreshUser } = useAuth();
-  const { haptic, isInTelegram, webApp } = useTelegram();
+  const { haptic, isInTelegram } = useTelegram();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('home');
-  const [page, setPage] = useState<PageState>(() => {
-    // Check for deep link on initial mount
-    const sp = webApp?.initDataUnsafe?.start_param;
-    if (sp?.startsWith('p_')) return { type: 'post-detail', postId: sp.slice(2) };
-    const urlParams = new URLSearchParams(window.location.search);
-    const startapp = urlParams.get('startapp');
-    if (startapp?.startsWith('p_')) return { type: 'post-detail', postId: startapp.slice(2) };
-    return { type: 'main' };
-  });
+  const [page, setPage] = useState<PageState>(DEEP_LINK ?? { type: 'main' });
   const [unreadCount, setUnreadCount] = useState(0);
   const lastUnreadRef = useRef(0);
   const [showAddChild, setShowAddChild] = useState(false);
@@ -75,9 +82,9 @@ function AppContent() {
     return () => clearInterval(interval);
   }, [isAuthenticated, haptic]);
 
-  // Block access outside Telegram (except in dev)
+  // Block access outside Telegram (except in dev or deep link)
   const isDev = import.meta.env.DEV;
-  if (!isInTelegram && !isDev) {
+  if (!isInTelegram && !isDev && !DEEP_LINK) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-tg-bg to-tg-secondary-bg">
         <p className="text-6xl mb-4">👶</p>
@@ -133,16 +140,7 @@ function AppContent() {
   // Check if user can write (contributor+)
   const canWrite = user && ['contributor', 'expert', 'admin'].includes(user.role);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-tg-bg">
-        <p className="text-4xl mb-4">👶</p>
-        <p className="text-tg-hint animate-pulse">{t('app.name')}</p>
-      </div>
-    );
-  }
-
-  // Render post detail even if auth failed (deep link support — endpoint works without auth)
+  // Render post detail even during loading/error (deep link — endpoint works without auth)
   if (page.type === 'post-detail' && page.postId) {
     return (
       <PostDetailPage
@@ -161,6 +159,15 @@ function AppContent() {
         onBack={() => setPage({ type: 'post-detail', postId: page.postId })}
         onSaved={() => setPage({ type: 'post-detail', postId: page.postId })}
       />
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-tg-bg">
+        <p className="text-4xl mb-4">👶</p>
+        <p className="text-tg-hint animate-pulse">{t('app.name')}</p>
+      </div>
     );
   }
 
