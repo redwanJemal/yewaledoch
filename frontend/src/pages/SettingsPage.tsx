@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Globe, Bell, UserCog, Info, HelpCircle, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Globe, Bell, UserCog, Info, HelpCircle, ChevronRight, Phone } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 import { useTelegram } from '@/lib/telegram';
 import { usersApi } from '@/lib/api';
@@ -15,7 +15,7 @@ const parentingRoles = ['mom', 'dad', 'guardian', 'expecting'] as const;
 
 export function SettingsPage({ user, onBack, onUserUpdate }: SettingsPageProps) {
   const { t, language, setLanguage } = useTranslation();
-  const { haptic } = useTelegram();
+  const { haptic, requestContact } = useTelegram();
   const [editMode, setEditMode] = useState(false);
   const [firstName, setFirstName] = useState(user.first_name || '');
   const [lastName, setLastName] = useState(user.last_name || '');
@@ -103,6 +103,40 @@ export function SettingsPage({ user, onBack, onUserUpdate }: SettingsPageProps) 
           <div className="flex items-center justify-between">
             <span className="text-sm text-tg-text">{t('settings.notify_replies')}</span>
             <ToggleSwitch on={notifyReplies} onToggle={() => setNotifyReplies(!notifyReplies)} />
+          </div>
+        </div>
+
+        {/* Phone Number */}
+        <div className="bg-tg-section-bg rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Phone className="w-5 h-5 text-tg-button" />
+              <div>
+                <span className="text-sm font-medium text-tg-text">{t('settings.phone')}</span>
+                {user.phone && (
+                  <p className="text-xs text-tg-hint">{user.phone}</p>
+                )}
+              </div>
+            </div>
+            {!user.phone ? (
+              <button
+                onClick={async () => {
+                  haptic.impact('light');
+                  const contact = await requestContact();
+                  if (contact) {
+                    try {
+                      await usersApi.updateProfile({ phone: contact.phone_number });
+                      onUserUpdate();
+                    } catch { /* ignore */ }
+                  }
+                }}
+                className="text-xs px-3 py-1.5 bg-tg-button text-tg-button-text rounded-lg font-medium"
+              >
+                {t('settings.share_phone')}
+              </button>
+            ) : (
+              <span className="text-xs text-green-600">✓</span>
+            )}
           </div>
         </div>
 

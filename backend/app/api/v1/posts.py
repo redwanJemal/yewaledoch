@@ -533,9 +533,9 @@ async def report_post(
 
 @saved_router.get("", response_model=PostListResponse)
 async def list_saved_posts(
+    user: CurrentUser,
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=50),
-    user: CurrentUser = None,
     db: AsyncSession = Depends(get_db),
 ):
     """List user's saved/bookmarked posts."""
@@ -589,9 +589,9 @@ async def list_saved_posts(
 
 @mine_router.get("", response_model=PostListResponse)
 async def list_my_posts(
+    user: CurrentUser,
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=50),
-    user: CurrentUser = None,
     db: AsyncSession = Depends(get_db),
 ):
     """List posts created by the current user."""

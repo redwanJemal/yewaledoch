@@ -81,9 +81,9 @@ function formatDate(d: Date): string {
 }
 
 const statusConfig = {
-  completed: { icon: '✅', bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700' },
-  overdue: { icon: '🔴', bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700' },
-  upcoming: { icon: '⏰', bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-700' },
+  completed: { icon: '✅', bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-600 dark:text-green-400' },
+  overdue: { icon: '🔴', bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-600 dark:text-red-400' },
+  upcoming: { icon: '⏰', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-600 dark:text-yellow-400' },
   future: { icon: '⬜', bg: 'bg-tg-secondary-bg', border: 'border-tg-hint/10', text: 'text-tg-hint' },
 };
 
@@ -153,7 +153,7 @@ export function VaccinationChecklist({ childId, childDob, vaccinations, vaccineS
                     <button
                       onClick={() => handleMarkDone(item)}
                       disabled={isMarking}
-                      className={`text-xs px-3 py-1.5 rounded-lg font-medium ${cfg.text} bg-white/50 disabled:opacity-50`}
+                      className={`text-xs px-3 py-1.5 rounded-lg font-medium ${cfg.text} bg-tg-bg/50 disabled:opacity-50`}
                     >
                       {isMarking ? '...' : t('child.mark_done')}
                     </button>

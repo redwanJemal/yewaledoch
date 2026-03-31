@@ -2,19 +2,19 @@ import { useQuery } from '@tanstack/react-query';
 import { resourcesApi } from '@/lib/api';
 import { useTranslation } from '@/lib/i18n';
 
-const CATEGORY_CONFIG: Record<string, { icon: string; color: string }> = {
-  pregnancy: { icon: '🤰', color: 'bg-pink-50' },
-  newborn: { icon: '👶', color: 'bg-blue-50' },
-  toddler: { icon: '🧒', color: 'bg-green-50' },
-  school_age: { icon: '🎒', color: 'bg-yellow-50' },
-  teens: { icon: '🧑', color: 'bg-purple-50' },
-  health: { icon: '🏥', color: 'bg-red-50' },
-  nutrition: { icon: '🍎', color: 'bg-orange-50' },
-  dads: { icon: '👨', color: 'bg-indigo-50' },
-  mental_health: { icon: '🧠', color: 'bg-teal-50' },
-  special_needs: { icon: '💙', color: 'bg-cyan-50' },
-  education: { icon: '📚', color: 'bg-amber-50' },
-  fun_activities: { icon: '🎨', color: 'bg-lime-50' },
+const CATEGORY_CONFIG: Record<string, { icon: string }> = {
+  pregnancy: { icon: '🤰' },
+  newborn: { icon: '👶' },
+  toddler: { icon: '🧒' },
+  school_age: { icon: '🎒' },
+  teens: { icon: '🧑' },
+  health: { icon: '🏥' },
+  nutrition: { icon: '🍎' },
+  dads: { icon: '👨' },
+  mental_health: { icon: '🧠' },
+  special_needs: { icon: '💙' },
+  education: { icon: '📚' },
+  fun_activities: { icon: '🎨' },
 };
 
 interface TopicsPageProps {
@@ -46,12 +46,12 @@ export function TopicsPage({ onCategoryTap }: TopicsPageProps) {
       ) : (
         <div className="grid grid-cols-3 gap-3">
           {(categories || []).map((cat) => {
-            const config = CATEGORY_CONFIG[cat.slug] || { icon: '📋', color: 'bg-gray-50' };
+            const config = CATEGORY_CONFIG[cat.slug] || { icon: '📋' };
             return (
               <button
                 key={cat.slug}
                 onClick={() => onCategoryTap(cat.slug)}
-                className={`${config.color} rounded-xl p-3 flex flex-col items-center gap-1.5 active:scale-95 transition-transform`}
+                className="bg-tg-section-bg rounded-xl p-3 flex flex-col items-center gap-1.5 active:scale-95 transition-transform"
               >
                 <span className="text-2xl">{config.icon}</span>
                 <span className="text-xs font-semibold text-tg-text text-center leading-tight">

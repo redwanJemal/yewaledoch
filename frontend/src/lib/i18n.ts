@@ -145,6 +145,10 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.about_text': 'የኢትዮጵያ ወላጆች ማህበረሰብ — ልምድ ይጋሩ፣ ምክር ያግኙ',
     'settings.help': 'እገዛ እና አስተያየት',
     'settings.version': 'ስሪት',
+    'settings.phone': 'ስልክ ቁጥር',
+    'settings.share_phone': 'ስልክ ቁጥር አጋራ',
+    'settings.phone_shared': 'ስልክ ቁጥር ተጋርቷል',
+    'settings.phone_required': 'ለመጻፍ ስልክ ቁጥር ያስፈልጋል',
 
     // Resources
     'resources.title': 'መረጃዎች',
@@ -352,6 +356,10 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.about_text': 'Ethiopian Parenting Community — share experiences, get advice',
     'settings.help': 'Help & Feedback',
     'settings.version': 'Version',
+    'settings.phone': 'Phone Number',
+    'settings.share_phone': 'Share Phone Number',
+    'settings.phone_shared': 'Phone number shared',
+    'settings.phone_required': 'Phone number required to post',
 
     // Resources
     'resources.title': 'Resources',

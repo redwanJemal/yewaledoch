@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 import { useTelegram } from '@/lib/telegram';
-import { childrenApi, resourcesApi } from '@/lib/api';
+import { childrenApi, resourcesApi, transformVaccineData } from '@/lib/api';
 import type { Child, Vaccination, Milestone, VaccineInfo, MilestoneInfo } from '@/lib/api';
 import { VaccinationChecklist } from '@/components/VaccinationChecklist';
 
@@ -47,7 +47,7 @@ export function ChildProfilePage({ childId, onBack }: ChildProfilePageProps) {
         if (found) setChild(found);
         setVaccinations(vacs);
         setMilestones(mils);
-        setVaccineSchedule(vacSchedule);
+        setVaccineSchedule(transformVaccineData(vacSchedule));
         setMilestoneInfo(milInfo);
       } catch {
         // ignore
@@ -209,7 +209,7 @@ export function ChildProfilePage({ childId, onBack }: ChildProfilePageProps) {
                           key={mi.type}
                           className={`flex items-center gap-3 p-3 rounded-xl border ${
                             isDone
-                              ? 'bg-green-50 border-green-200'
+                              ? 'bg-green-500/10 border-green-500/20'
                               : 'bg-tg-section-bg border-tg-hint/10'
                           }`}
                         >
@@ -219,7 +219,7 @@ export function ChildProfilePage({ childId, onBack }: ChildProfilePageProps) {
                               {language === 'am' ? mi.name_am : mi.name_en}
                             </p>
                             {isDone && matching?.completed_at && (
-                              <p className="text-xs text-green-600">✓ {matching.completed_at}</p>
+                              <p className="text-xs text-green-600 dark:text-green-400">✓ {matching.completed_at}</p>
                             )}
                           </div>
                           {!isDone && (

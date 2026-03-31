@@ -128,7 +128,7 @@ export function ProfilePage({ user, onNavigate }: ProfilePageProps) {
                   haptic.impact('light');
                   onNavigate('child-profile', { childId: child.id });
                 }}
-                className="w-full flex items-center gap-3 p-3 bg-tg-bg rounded-xl active:scale-[0.98] transition-transform"
+                className="w-full flex items-center gap-3 p-3 bg-tg-secondary-bg rounded-xl active:scale-[0.98] transition-transform"
               >
                 <span className="text-xl">{child.gender === 'M' ? '👦' : '👧'}</span>
                 <div className="flex-1 text-left">

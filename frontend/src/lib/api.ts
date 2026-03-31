@@ -289,11 +289,43 @@ export interface CategoryInfo {
   name_en: string;
 }
 
+export interface VaccineScheduleGroup {
+  age: string;
+  age_weeks: number;
+  vaccines: {
+    name: string;
+    name_am: string;
+    dose: number;
+    description: string;
+    description_am: string;
+  }[];
+}
+
 export interface VaccineInfo {
   name: string;
   name_am: string;
   doses: number;
   schedule_weeks: number[];
+}
+
+export function transformVaccineData(groups: VaccineScheduleGroup[]): VaccineInfo[] {
+  const vaccineMap = new Map<string, { name_am: string; weeks: number[] }>();
+  for (const group of groups) {
+    for (const v of group.vaccines) {
+      const existing = vaccineMap.get(v.name);
+      if (existing) {
+        existing.weeks.push(group.age_weeks);
+      } else {
+        vaccineMap.set(v.name, { name_am: v.name_am, weeks: [group.age_weeks] });
+      }
+    }
+  }
+  return Array.from(vaccineMap.entries()).map(([name, data]) => ({
+    name,
+    name_am: data.name_am,
+    doses: data.weeks.length,
+    schedule_weeks: data.weeks,
+  }));
 }
 
 export interface MilestoneInfo {
@@ -360,6 +392,7 @@ export const usersApi = {
     parenting_role?: string;
     language?: string;
     children_data?: ChildData[];
+    phone?: string;
   }) =>
     request<User>('/users/me', {
       method: 'PATCH',
@@ -536,7 +569,7 @@ export const childrenApi = {
 };
 
 export const resourcesApi = {
-  vaccines: () => request<VaccineInfo[]>('/resources/vaccines'),
+  vaccines: () => request<VaccineScheduleGroup[]>('/resources/vaccines'),
   milestones: () => request<MilestoneInfo[]>('/resources/milestones'),
   categories: () => request<CategoryInfo[]>('/resources/categories'),
 };

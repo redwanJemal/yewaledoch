@@ -1,6 +1,5 @@
 stages:
   - build
-  - deploy
 
 variables:
   BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend
@@ -9,6 +8,11 @@ variables:
 
 # ---------------------------------------------------------------------------
 # Build stage – builds & pushes Docker images to GitLab Container Registry
+# Tags: :latest and :$CI_COMMIT_SHORT_SHA
+# Deploy manually on VPS:
+#   cd /home/redman/yewaledoch
+#   docker compose -f docker-compose.coolify.yml build --no-cache yewaledoch-api yewaledoch-web
+#   docker compose -f docker-compose.coolify.yml up -d yewaledoch-api yewaledoch-web
 # ---------------------------------------------------------------------------
 
 build-backend:
@@ -25,7 +29,7 @@ build-backend:
     - docker push $BACKEND_IMAGE:$CI_COMMIT_SHORT_SHA
     - docker push $BACKEND_IMAGE:latest
   only:
-    - main
+    - master
 
 build-frontend:
   stage: build
@@ -46,7 +50,7 @@ build-frontend:
     - docker push $FRONTEND_IMAGE:$CI_COMMIT_SHORT_SHA
     - docker push $FRONTEND_IMAGE:latest
   only:
-    - main
+    - master
 
 build-admin:
   stage: build
@@ -66,35 +70,4 @@ build-admin:
     - docker push $ADMIN_IMAGE:$CI_COMMIT_SHORT_SHA
     - docker push $ADMIN_IMAGE:latest
   only:
-    - main
-
-# ---------------------------------------------------------------------------
-# Deploy stage – SSH into production, pull new images, restart services
-# ---------------------------------------------------------------------------
-
-deploy-production:
-  stage: deploy
-  image: alpine:3.20
-  before_script:
-    - apk add --no-cache openssh-client
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-  script:
-    - ssh $SSH_USER@$SSH_HOST "
-        cd $PROJECT_DIR &&
-        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-        docker pull $BACKEND_IMAGE:latest &&
-        docker pull $FRONTEND_IMAGE:latest &&
-        docker pull $ADMIN_IMAGE:latest &&
-        docker compose -f docker-compose.prod.yml up -d --no-build &&
-        docker compose -f docker-compose.prod.yml exec -T backend alembic upgrade head &&
-        docker image prune -f
-      "
-  only:
-    - main
-  when: manual
-  environment:
-    name: production
+    - master

@@ -66,6 +66,20 @@ interface MainButton {
   offClick: (callback: () => void) => void;
 }
 
+interface RequestContactResponse {
+  status: string;
+  response?: {
+    contact?: {
+      phone_number: string;
+      first_name: string;
+      last_name?: string;
+      user_id?: number;
+    };
+    auth_date: number;
+    hash: string;
+  };
+}
+
 interface WebApp {
   initData: string;
   initDataUnsafe: {
@@ -103,6 +117,7 @@ interface WebApp {
   showPopup: (params: { title?: string; message: string; buttons?: Array<{ type?: string; text: string; id?: string }> }, callback?: (id: string) => void) => void;
   showAlert: (message: string, callback?: () => void) => void;
   showConfirm: (message: string, callback?: (confirmed: boolean) => void) => void;
+  requestContact?: (callback: (sent: boolean, event?: RequestContactResponse) => void) => void;
 }
 
 declare global {
@@ -133,6 +148,7 @@ interface TelegramContextType {
   close: () => void;
   showAlert: (message: string) => Promise<void>;
   showConfirm: (message: string) => Promise<boolean>;
+  requestContact: () => Promise<{ phone_number: string; first_name: string } | null>;
 }
 
 const TelegramContext = createContext<TelegramContextType | null>(null);
@@ -201,6 +217,22 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const requestContact = (): Promise<{ phone_number: string; first_name: string } | null> => {
+    return new Promise((resolve) => {
+      if (webApp?.requestContact) {
+        webApp.requestContact((sent, event) => {
+          if (sent && event?.response?.contact) {
+            resolve(event.response.contact);
+          } else {
+            resolve(null);
+          }
+        });
+      } else {
+        resolve(null);
+      }
+    });
+  };
+
   const value: TelegramContextType = {
     webApp,
     user: webApp?.initDataUnsafe?.user || null,
@@ -216,6 +248,7 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
     close: () => webApp?.close(),
     showAlert,
     showConfirm,
+    requestContact,
   };
 
   return (

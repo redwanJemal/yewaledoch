@@ -55,9 +55,9 @@ export function AddChildModal({ onClose, onSaved }: AddChildModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50" onClick={handleCancel}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={handleCancel}>
       <div
-        className="w-full max-w-lg bg-tg-bg rounded-t-2xl p-5 animate-slide-up"
+        className="w-full max-w-lg max-h-[85vh] overflow-y-auto bg-tg-bg rounded-2xl p-5"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

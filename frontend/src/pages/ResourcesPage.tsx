@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 import { useTelegram } from '@/lib/telegram';
 import { resourcesApi } from '@/lib/api';
-import type { VaccineInfo, MilestoneInfo } from '@/lib/api';
+import type { VaccineScheduleGroup, MilestoneInfo } from '@/lib/api';
 
 type ResourceSection = 'menu' | 'vaccines' | 'milestones' | 'recipes' | 'emergency' | 'pregnancy';
 
@@ -23,7 +23,7 @@ export function ResourcesPage({ onBack }: ResourcesPageProps) {
   const { t, language } = useTranslation();
   const { haptic } = useTelegram();
   const [section, setSection] = useState<ResourceSection>('menu');
-  const [vaccines, setVaccines] = useState<VaccineInfo[]>([]);
+  const [vaccines, setVaccines] = useState<VaccineScheduleGroup[]>([]);
   const [milestonesList, setMilestonesList] = useState<MilestoneInfo[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -85,15 +85,25 @@ export function ResourcesPage({ onBack }: ResourcesPageProps) {
           loading ? (
             <div className="space-y-3">{[1, 2, 3].map((i) => <div key={i} className="h-16 bg-tg-section-bg rounded-xl animate-pulse" />)}</div>
           ) : (
-            <div className="space-y-3">
-              {vaccines.map((v) => (
-                <div key={v.name} className="bg-tg-section-bg rounded-xl p-4">
-                  <p className="text-sm font-semibold text-tg-text">
-                    {language === 'am' ? v.name_am : v.name}
+            <div className="space-y-4">
+              {vaccines.map((group) => (
+                <div key={group.age_weeks}>
+                  <p className="text-xs font-semibold text-tg-hint uppercase mb-2">
+                    {group.age_weeks === 0 ? t('child.at_birth') : group.age}
                   </p>
-                  <p className="text-xs text-tg-hint mt-1">
-                    {v.doses} dose{v.doses > 1 ? 's' : ''} &middot; {v.schedule_weeks.map((w) => w === 0 ? t('child.at_birth') : `${w}w`).join(', ')}
-                  </p>
+                  <div className="space-y-2">
+                    {group.vaccines.map((v) => (
+                      <div key={`${v.name}-${v.dose}`} className="bg-tg-section-bg rounded-xl p-4">
+                        <p className="text-sm font-semibold text-tg-text">
+                          {language === 'am' ? v.name_am : v.name}
+                          {v.dose > 1 && ` (${v.dose})`}
+                        </p>
+                        <p className="text-xs text-tg-hint mt-1">
+                          {language === 'am' ? v.description_am : v.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>

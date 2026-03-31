@@ -69,6 +69,7 @@ class UpdateProfileRequest(BaseModel):
     parenting_role: str | None = Field(None, pattern=r"^(mom|dad|guardian|other)$")
     language: str | None = Field(None, pattern=r"^(am|en)$")
     children_data: list | None = None
+    phone: str | None = None
 
 
 def user_to_me_response(user: User) -> UserMeResponse:
@@ -143,6 +144,9 @@ async def update_profile(
         user.language = body.language
     if body.children_data is not None:
         user.children_data = body.children_data
+    if body.phone is not None:
+        user.phone = body.phone
+        user.phone_verified = True
 
     return user_to_me_response(user)
 

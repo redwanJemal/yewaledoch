@@ -153,6 +153,17 @@ function AppContent() {
     );
   }
 
+  // Render post detail even if auth failed (deep link support — endpoint works without auth)
+  if (page.type === 'post-detail' && page.postId) {
+    return (
+      <PostDetailPage
+        postId={page.postId}
+        onBack={() => setPage({ type: 'main' })}
+        currentUser={user}
+      />
+    );
+  }
+
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
@@ -166,17 +177,6 @@ function AppContent() {
           {t('btn.retry')}
         </button>
       </div>
-    );
-  }
-
-  // Render overlay pages (full-screen, no bottom nav)
-  if (page.type === 'post-detail' && page.postId) {
-    return (
-      <PostDetailPage
-        postId={page.postId}
-        onBack={() => setPage({ type: 'main' })}
-        currentUser={user}
-      />
     );
   }
 

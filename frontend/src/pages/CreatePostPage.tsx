@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
-import { X, ImagePlus, Eye, Loader2, Send } from 'lucide-react';
+import { X, ImagePlus, Eye, Loader2, Send, Phone } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { postsApi, getAccessToken } from '@/lib/api';
+import { postsApi, usersApi, getAccessToken } from '@/lib/api';
 import type { PostType, PostCreateRequest, Post } from '@/lib/api';
 import type { User } from '@/lib/api';
 import { PostTypeSelector } from '@/components/PostTypeSelector';
@@ -22,9 +22,9 @@ interface CreatePostPageProps {
   onSuccess: (postId: string) => void;
 }
 
-export function CreatePostPage({ onSuccess }: CreatePostPageProps) {
+export function CreatePostPage({ user, onSuccess }: CreatePostPageProps) {
   const { t } = useTranslation();
-  const { haptic } = useTelegram();
+  const { haptic, requestContact } = useTelegram();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,6 +41,8 @@ export function CreatePostPage({ onSuccess }: CreatePostPageProps) {
   const [uploading, setUploading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [sharingPhone, setSharingPhone] = useState(false);
+  const [hasPhone, setHasPhone] = useState(!!user.phone);
 
   const parsedTags = tagsInput
     .split(',')
@@ -88,6 +90,31 @@ export function CreatePostPage({ onSuccess }: CreatePostPageProps) {
     submitMutation.mutate(data);
   };
 
+  const compressImage = (file: File, maxWidth = 1200, quality = 0.8): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => resolve(blob || file),
+          'image/jpeg',
+          quality,
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -99,26 +126,34 @@ export function CreatePostPage({ onSuccess }: CreatePostPageProps) {
     const API_URL = import.meta.env.VITE_API_URL || '/api/v1';
     const token = getAccessToken();
 
-    for (let i = 0; i < Math.min(files.length, remaining); i++) {
-      const file = files[i];
-      if (!file.type.startsWith('image/')) continue;
+    const uploadTasks = Array.from(files)
+      .slice(0, remaining)
+      .filter((f) => f.type.startsWith('image/'))
+      .map(async (file) => {
+        const compressed = await compressImage(file);
+        const formData = new FormData();
+        formData.append('file', compressed, file.name);
 
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        const res = await fetch(`${API_URL}/upload/image`, {
-          method: 'POST',
-          headers: { ...(token && { Authorization: `Bearer ${token}` }) },
-          body: formData,
-        });
-        if (res.ok) {
-          const result = await res.json();
-          setImages((prev) => [...prev, result.url]);
+        try {
+          const res = await fetch(`${API_URL}/upload/image`, {
+            method: 'POST',
+            headers: { ...(token && { Authorization: `Bearer ${token}` }) },
+            body: formData,
+          });
+          if (res.ok) {
+            const result = await res.json();
+            return result.url as string;
+          }
+        } catch {
+          // Skip failed uploads
         }
-      } catch {
-        // Silently skip failed uploads
-      }
+        return null;
+      });
+
+    const results = await Promise.all(uploadTasks);
+    const uploaded = results.filter((url): url is string => url !== null);
+    if (uploaded.length > 0) {
+      setImages((prev) => [...prev, ...uploaded]);
     }
 
     setUploading(false);
@@ -189,6 +224,35 @@ export function CreatePostPage({ onSuccess }: CreatePostPageProps) {
           className="w-full mt-4 py-3 bg-tg-secondary-bg text-tg-text rounded-xl font-medium"
         >
           {t('write.back_to_edit')}
+        </button>
+      </div>
+    );
+  }
+
+  // Phone number gate
+  if (!hasPhone) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+        <Phone className="w-12 h-12 text-tg-button mb-4" />
+        <h2 className="text-lg font-bold text-tg-text mb-2">{t('settings.phone_required')}</h2>
+        <p className="text-sm text-tg-hint mb-6">{t('settings.share_phone')}</p>
+        <button
+          disabled={sharingPhone}
+          onClick={async () => {
+            setSharingPhone(true);
+            haptic.impact('light');
+            const contact = await requestContact();
+            if (contact) {
+              try {
+                await usersApi.updateProfile({ phone: contact.phone_number });
+                setHasPhone(true);
+              } catch { /* ignore */ }
+            }
+            setSharingPhone(false);
+          }}
+          className="px-6 py-3 bg-tg-button text-tg-button-text rounded-xl font-medium disabled:opacity-50"
+        >
+          {sharingPhone ? '...' : t('settings.share_phone')}
         </button>
       </div>
     );
@@ -356,8 +420,8 @@ export function CreatePostPage({ onSuccess }: CreatePostPageProps) {
 
       {/* Error message */}
       {submitMutation.isError && (
-        <div className="mb-4 p-3 bg-red-50 rounded-xl">
-          <p className="text-sm text-red-600">{submitMutation.error?.message || t('error.generic')}</p>
+        <div className="mb-4 p-3 bg-red-500/10 rounded-xl">
+          <p className="text-sm text-red-600 dark:text-red-400">{submitMutation.error?.message || t('error.generic')}</p>
         </div>
       )}
 
