@@ -56,8 +56,11 @@ class PostUpdate(BaseModel):
     title: str | None = Field(None, min_length=3, max_length=300)
     body: str | None = Field(None, min_length=10)
     category: str | None = None
+    age_group: str | None = None
     tags: list[str] | None = None
+    images: list[str] | None = None
     is_anonymous: bool | None = None
+    discussion_prompt: str | None = None
 
 
 class PostResponse(BaseModel):

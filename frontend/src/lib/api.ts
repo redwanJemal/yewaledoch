@@ -177,8 +177,11 @@ export interface PostUpdateRequest {
   title?: string;
   body?: string;
   category?: string;
+  age_group?: string;
   tags?: string[];
+  images?: string[];
   is_anonymous?: boolean;
+  discussion_prompt?: string;
 }
 
 export interface Comment {

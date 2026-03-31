@@ -8,11 +8,9 @@ import {
   ArrowLeft,
   ExternalLink,
   Pencil,
-  Check,
-  X,
 } from 'lucide-react';
 import { postsApi, commentsApi } from '@/lib/api';
-import type { User, PostUpdateRequest } from '@/lib/api';
+import type { User, Post } from '@/lib/api';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { CommentThread } from '@/components/CommentThread';
 import { CommentInput } from '@/components/CommentInput';
@@ -26,9 +24,10 @@ interface PostDetailPageProps {
   postId: string;
   onBack: () => void;
   currentUser: User | null;
+  onEdit?: (post: Post) => void;
 }
 
-export function PostDetailPage({ postId, onBack, currentUser }: PostDetailPageProps) {
+export function PostDetailPage({ postId, onBack, currentUser, onEdit }: PostDetailPageProps) {
   const { t } = useTranslation();
   const { haptic, webApp } = useTelegram();
   const queryClient = useQueryClient();
@@ -37,10 +36,6 @@ export function PostDetailPage({ postId, onBack, currentUser }: PostDetailPagePr
   const [likeCount, setLikeCount] = useState(0);
   const [saved, setSaved] = useState(false);
   const [likeAnimating, setLikeAnimating] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState('');
-  const [editBody, setEditBody] = useState('');
-  const [editSaving, setEditSaving] = useState(false);
 
   // Telegram back button
   useBackButton(onBack);
@@ -164,33 +159,6 @@ export function PostDetailPage({ postId, onBack, currentUser }: PostDetailPagePr
   const isAdmin = !!currentUser && currentUser.role === 'admin';
   const canEdit = isOwner || isAdmin;
 
-  const startEditing = () => {
-    if (!post) return;
-    setEditTitle(post.title);
-    setEditBody(post.body);
-    setEditing(true);
-  };
-
-  const handleSaveEdit = async () => {
-    if (!post) return;
-    setEditSaving(true);
-    try {
-      const updates: PostUpdateRequest = {};
-      if (editTitle !== post.title) updates.title = editTitle;
-      if (editBody !== post.body) updates.body = editBody;
-      await postsApi.update(postId, updates);
-      queryClient.invalidateQueries({ queryKey: ['post', postId] });
-      queryClient.invalidateQueries({ queryKey: ['posts-feed'] });
-      setEditing(false);
-      haptic.notification('success');
-      toast.success(t('post.updated'));
-    } catch {
-      toast.error(t('error.generic'));
-    } finally {
-      setEditSaving(false);
-    }
-  };
-
   // Loading state
   if (postLoading) {
     return (
@@ -248,26 +216,15 @@ export function PostDetailPage({ postId, onBack, currentUser }: PostDetailPagePr
     <div className="min-h-screen bg-tg-bg pb-4">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-tg-bg/95 backdrop-blur-sm px-4 py-3 flex items-center gap-3 border-b border-tg-hint/10">
-        <button onClick={editing ? () => setEditing(false) : onBack}>
+        <button onClick={onBack}>
           <ArrowLeft className="w-6 h-6 text-tg-text" />
         </button>
-        <span className="text-sm font-medium text-tg-text truncate flex-1">
-          {editing ? t('btn.edit') : post.title}
-        </span>
-        {editing ? (
-          <div className="flex items-center gap-2">
-            <button onClick={() => setEditing(false)} className="p-1 text-tg-hint">
-              <X className="w-5 h-5" />
-            </button>
-            <button onClick={handleSaveEdit} disabled={editSaving} className="p-1 text-tg-button disabled:opacity-50">
-              <Check className="w-5 h-5" />
-            </button>
-          </div>
-        ) : canEdit ? (
-          <button onClick={startEditing} className="p-1 text-tg-hint">
+        <span className="text-sm font-medium text-tg-text truncate flex-1">{post.title}</span>
+        {canEdit && onEdit && (
+          <button onClick={() => onEdit(post)} className="p-1 text-tg-hint">
             <Pencil className="w-4 h-4" />
           </button>
-        ) : null}
+        )}
       </div>
 
       {/* Post content */}
@@ -286,18 +243,9 @@ export function PostDetailPage({ postId, onBack, currentUser }: PostDetailPagePr
         </div>
 
         {/* Title */}
-        {editing ? (
-          <input
-            type="text"
-            value={editTitle}
-            onChange={(e) => setEditTitle(e.target.value)}
-            className="w-full text-xl font-bold text-tg-text leading-tight mb-3 bg-tg-secondary-bg rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-tg-button/30"
-          />
-        ) : (
-          <h1 className="text-xl font-bold text-tg-text leading-tight mb-3">
-            {post.title}
-          </h1>
-        )}
+        <h1 className="text-xl font-bold text-tg-text leading-tight mb-3">
+          {post.title}
+        </h1>
 
         {/* Author info */}
         <div className="flex items-center gap-2 mb-4">
@@ -343,18 +291,9 @@ export function PostDetailPage({ postId, onBack, currentUser }: PostDetailPagePr
         )}
 
         {/* Body */}
-        {editing ? (
-          <textarea
-            value={editBody}
-            onChange={(e) => setEditBody(e.target.value)}
-            rows={8}
-            className="w-full text-tg-text text-[15px] leading-relaxed mb-4 bg-tg-secondary-bg rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-tg-button/30 resize-y"
-          />
-        ) : (
-          <div className="text-tg-text text-[15px] leading-relaxed whitespace-pre-wrap mb-4">
-            {post.body}
-          </div>
-        )}
+        <div className="text-tg-text text-[15px] leading-relaxed whitespace-pre-wrap mb-4">
+          {post.body}
+        </div>
 
         {/* Discussion prompt */}
         {post.discussion_prompt && (

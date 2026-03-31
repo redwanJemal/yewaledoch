@@ -16,16 +16,19 @@ import { MyPostsPage } from '@/pages/MyPostsPage';
 import { SavedPostsPage } from '@/pages/SavedPostsPage';
 import { ResourcesPage } from '@/pages/ResourcesPage';
 import { SettingsPage } from '@/pages/SettingsPage';
+import { EditPostPage } from '@/pages/EditPostPage';
 import { AddChildModal } from '@/components/AddChildModal';
+import type { Post } from '@/lib/api';
 
 type TabType = 'home' | 'topics' | 'write' | 'alerts' | 'me';
-type PageType = 'main' | 'post-detail' | 'topic-feed' | 'child-profile' | 'my-posts' | 'saved-posts' | 'resources' | 'settings';
+type PageType = 'main' | 'post-detail' | 'edit-post' | 'topic-feed' | 'child-profile' | 'my-posts' | 'saved-posts' | 'resources' | 'settings';
 
 interface PageState {
   type: PageType;
   postId?: string;
   childId?: string;
   category?: string;
+  editPost?: Post;
 }
 
 function AppContent() {
@@ -160,6 +163,17 @@ function AppContent() {
         postId={page.postId}
         onBack={() => setPage({ type: 'main' })}
         currentUser={user}
+        onEdit={(post) => setPage({ type: 'edit-post', postId: post.id, editPost: post })}
+      />
+    );
+  }
+
+  if (page.type === 'edit-post' && page.editPost) {
+    return (
+      <EditPostPage
+        post={page.editPost}
+        onBack={() => setPage({ type: 'post-detail', postId: page.postId })}
+        onSaved={() => setPage({ type: 'post-detail', postId: page.postId })}
       />
     );
   }
