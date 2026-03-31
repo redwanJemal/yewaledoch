@@ -20,9 +20,10 @@ const AGE_GROUPS = [
 interface CreatePostPageProps {
   user: User;
   onSuccess: (postId: string) => void;
+  onUserUpdate?: () => void;
 }
 
-export function CreatePostPage({ user, onSuccess }: CreatePostPageProps) {
+export function CreatePostPage({ user, onSuccess, onUserUpdate }: CreatePostPageProps) {
   const { t } = useTranslation();
   const { haptic, requestContact } = useTelegram();
   const queryClient = useQueryClient();
@@ -246,6 +247,7 @@ export function CreatePostPage({ user, onSuccess }: CreatePostPageProps) {
               try {
                 await usersApi.updateProfile({ phone: contact.phone_number });
                 setHasPhone(true);
+                onUserUpdate?.();
               } catch { /* ignore */ }
             }
             setSharingPhone(false);

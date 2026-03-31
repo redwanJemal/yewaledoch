@@ -252,6 +252,7 @@ function AppContent() {
             ? <CreatePostPage
                 user={user}
                 onSuccess={(postId) => setPage({ type: 'post-detail', postId })}
+                onUserUpdate={refreshUser}
               />
             : user
               ? <LockedWritePage user={user} />
