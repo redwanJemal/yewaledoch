@@ -130,6 +130,7 @@ async def get_me(user: CurrentUser):
 async def update_profile(
     body: UpdateProfileRequest,
     user: CurrentUser,
+    db: AsyncSession = Depends(get_db),
 ):
     """Update current user profile."""
     if body.first_name is not None:
