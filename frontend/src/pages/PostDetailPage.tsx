@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Heart,
@@ -19,6 +19,57 @@ import { useTranslation } from '@/lib/i18n';
 import { useTelegram, useBackButton } from '@/lib/telegram';
 import { formatTimeAgo } from '@/lib/utils';
 import { toast } from 'sonner';
+
+function ImageCarousel({ images }: { images: string[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const index = Math.round(el.scrollLeft / el.clientWidth);
+    setActiveIndex(index);
+  };
+
+  if (images.length === 1) {
+    return (
+      <div className="mb-4 -mx-4">
+        <img src={images[0]} alt="" className="w-full object-cover max-h-80" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-4 -mx-4 relative">
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none"
+        style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+      >
+        {images.map((img, i) => (
+          <img
+            key={i}
+            src={img}
+            alt=""
+            className="w-full flex-shrink-0 object-cover max-h-80 snap-center"
+          />
+        ))}
+      </div>
+      {/* Dots indicator */}
+      <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5">
+        {images.map((_, i) => (
+          <span
+            key={i}
+            className={`w-1.5 h-1.5 rounded-full transition-colors ${
+              i === activeIndex ? 'bg-white' : 'bg-white/40'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 interface PostDetailPageProps {
   postId: string;
@@ -278,16 +329,7 @@ export function PostDetailPage({ postId, onBack, currentUser, onEdit }: PostDeta
 
         {/* Images */}
         {post.images && post.images.length > 0 && (
-          <div className="mb-4 -mx-4">
-            {post.images.map((img, i) => (
-              <img
-                key={i}
-                src={img}
-                alt=""
-                className="w-full object-cover max-h-80"
-              />
-            ))}
-          </div>
+          <ImageCarousel images={post.images} />
         )}
 
         {/* Body */}
