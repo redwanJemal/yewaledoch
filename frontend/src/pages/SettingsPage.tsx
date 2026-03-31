@@ -122,12 +122,19 @@ export function SettingsPage({ user, onBack, onUserUpdate }: SettingsPageProps) 
               <button
                 onClick={async () => {
                   haptic.impact('light');
-                  const contact = await requestContact();
-                  if (contact) {
-                    try {
-                      await usersApi.updateProfile({ phone: contact.phone_number });
-                      onUserUpdate();
-                    } catch { /* ignore */ }
+                  const shared = await requestContact();
+                  if (shared) {
+                    // Contact sent to bot webhook — poll until phone saved
+                    for (let i = 0; i < 10; i++) {
+                      await new Promise((r) => setTimeout(r, 1000));
+                      try {
+                        const me = await usersApi.me();
+                        if (me.phone) {
+                          onUserUpdate();
+                          break;
+                        }
+                      } catch { /* ignore */ }
+                    }
                   }
                 }}
                 className="text-xs px-3 py-1.5 bg-tg-button text-tg-button-text rounded-lg font-medium"

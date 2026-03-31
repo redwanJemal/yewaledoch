@@ -242,13 +242,20 @@ export function CreatePostPage({ user, onSuccess, onUserUpdate }: CreatePostPage
           onClick={async () => {
             setSharingPhone(true);
             haptic.impact('light');
-            const contact = await requestContact();
-            if (contact) {
-              try {
-                await usersApi.updateProfile({ phone: contact.phone_number });
-                setHasPhone(true);
-                onUserUpdate?.();
-              } catch { /* ignore */ }
+            const shared = await requestContact();
+            if (shared) {
+              // Contact is sent to the bot webhook — poll /users/me until phone is saved
+              for (let i = 0; i < 10; i++) {
+                await new Promise((r) => setTimeout(r, 1000));
+                try {
+                  const me = await usersApi.me();
+                  if (me.phone) {
+                    setHasPhone(true);
+                    onUserUpdate?.();
+                    break;
+                  }
+                } catch { /* ignore */ }
+              }
             }
             setSharingPhone(false);
           }}

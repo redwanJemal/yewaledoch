@@ -1,15 +1,20 @@
 """FastAPI application entry point."""
 
+import logging
 from contextlib import asynccontextmanager
 
+import httpx
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import select, update
 from starlette.middleware.base import BaseHTTPMiddleware
 import structlog
 
 from app.api.v1.router import router as v1_router
 from app.core.config import settings
+from app.core.database import get_db_context
 from app.core.rate_limit import rate_limiter, check_rate_limit, RATE_LIMITS
+from app.models.user import User
 
 # Configure structured logging
 structlog.configure(
@@ -28,11 +33,28 @@ structlog.configure(
 logger = structlog.get_logger()
 
 
+bot_logger = logging.getLogger("bot.webhook")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     logger.info("application_starting", app_name=settings.APP_NAME)
     await rate_limiter.connect()
+
+    # Register Telegram bot webhook
+    if settings.BOT_TOKEN and settings.MINI_APP_URL:
+        webhook_url = f"{settings.MINI_APP_URL}/api/v1/bot/webhook"
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(
+                    f"https://api.telegram.org/bot{settings.BOT_TOKEN}/setWebhook",
+                    json={"url": webhook_url, "allowed_updates": ["message"]},
+                )
+                bot_logger.info("Webhook set: %s", resp.json())
+        except Exception as e:
+            bot_logger.warning("Failed to set webhook: %s", e)
+
     yield
     await rate_limiter.close()
     logger.info("application_stopping")
