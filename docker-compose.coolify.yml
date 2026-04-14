@@ -63,14 +63,6 @@ services:
       - internal
       - coolify
 
-  yewaledoch-admin:
-    container_name: yewaledoch-admin
-    build: ./admin
-    depends_on:
-      - yewaledoch-api
-    networks:
-      - internal
-      - coolify
 
 volumes:
   pgdata:
