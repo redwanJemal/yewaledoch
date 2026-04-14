@@ -134,6 +134,9 @@ export interface AdminUser {
   comment_count: number;
   reputation: number;
   created_at: string;
+  expert_verified: boolean;
+  expert_specialty: string | null;
+  expert_bio: string | null;
 }
 
 export interface AdminUserListResponse {
@@ -308,6 +311,17 @@ export const adminApi = {
 
   unbanUser: (userId: string) =>
     request<{ message: string }>(`/admin/users/${userId}/unban`, {
+      method: 'POST',
+    }),
+
+  verifyExpert: (userId: string, specialty: string, bio?: string) =>
+    request<{ message: string; role: string }>(`/admin/users/${userId}/verify-expert`, {
+      method: 'POST',
+      body: JSON.stringify({ specialty, bio: bio || null }),
+    }),
+
+  revokeExpert: (userId: string) =>
+    request<{ message: string; role: string }>(`/admin/users/${userId}/revoke-expert`, {
       method: 'POST',
     }),
 

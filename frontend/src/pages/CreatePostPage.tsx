@@ -470,7 +470,7 @@ interface LockedWritePageProps {
 export function LockedWritePage({ user }: LockedWritePageProps) {
   const { t } = useTranslation();
   const commentCount = user.comment_count || 0;
-  const needed = 10;
+  const needed = 5;
   const progress = Math.min(commentCount / needed, 1);
 
   return (

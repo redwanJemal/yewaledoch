@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  BadgeCheck,
 } from 'lucide-react';
 import { adminApi } from '@/lib/api';
 import type { AdminUser } from '@/lib/api';
@@ -25,6 +26,10 @@ export default function UserManagementPage() {
   const [banReason, setBanReason] = useState('');
   const [showBanModal, setShowBanModal] = useState(false);
   const [banUserId, setBanUserId] = useState<string | null>(null);
+  const [showExpertModal, setShowExpertModal] = useState(false);
+  const [expertUserId, setExpertUserId] = useState<string | null>(null);
+  const [expertSpecialty, setExpertSpecialty] = useState('');
+  const [expertBio, setExpertBio] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users', page, search, roleFilter],
@@ -68,6 +73,29 @@ export default function UserManagementPage() {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  const verifyExpertMutation = useMutation({
+    mutationFn: ({ userId, specialty, bio }: { userId: string; specialty: string; bio: string }) =>
+      adminApi.verifyExpert(userId, specialty, bio || undefined),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast.success('Expert verified');
+      setShowExpertModal(false);
+      setExpertSpecialty('');
+      setExpertBio('');
+      setExpertUserId(null);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const revokeExpertMutation = useMutation({
+    mutationFn: adminApi.revokeExpert,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast.success('Expert status revoked');
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSearch(searchInput);
@@ -83,6 +111,19 @@ export default function UserManagementPage() {
   const handleBan = () => {
     if (banUserId && banReason.trim()) {
       banMutation.mutate({ userId: banUserId, reason: banReason.trim() });
+    }
+  };
+
+  const openExpertModal = (userId: string) => {
+    setExpertUserId(userId);
+    setExpertSpecialty('');
+    setExpertBio('');
+    setShowExpertModal(true);
+  };
+
+  const handleVerifyExpert = () => {
+    if (expertUserId && expertSpecialty.trim()) {
+      verifyExpertMutation.mutate({ userId: expertUserId, specialty: expertSpecialty.trim(), bio: expertBio.trim() });
     }
   };
 
@@ -178,6 +219,23 @@ export default function UserManagementPage() {
                     </td>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
+                        {user.expert_verified ? (
+                          <button
+                            onClick={() => revokeExpertMutation.mutate(user.id)}
+                            className="p-1.5 text-blue-500 hover:text-gray-400 hover:bg-gray-50 rounded"
+                            title="Revoke Expert"
+                          >
+                            <BadgeCheck size={16} />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => openExpertModal(user.id)}
+                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                            title="Verify as Expert"
+                          >
+                            <BadgeCheck size={16} />
+                          </button>
+                        )}
                         {user.is_banned ? (
                           <button
                             onClick={() => unbanMutation.mutate(user.id)}
@@ -271,12 +329,69 @@ export default function UserManagementPage() {
               <p className="text-gray-500">Joined</p>
               <p className="font-medium">{new Date(selectedUser.created_at).toLocaleDateString()}</p>
             </div>
+            {selectedUser.expert_verified && (
+              <div className="col-span-2 md:col-span-4 flex items-start gap-2 p-3 bg-blue-50 rounded-lg">
+                <BadgeCheck size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-blue-700">Verified Expert — {selectedUser.expert_specialty}</p>
+                  {selectedUser.expert_bio && <p className="text-xs text-blue-600 mt-0.5">{selectedUser.expert_bio}</p>}
+                </div>
+              </div>
+            )}
             {selectedUser.is_banned && selectedUser.ban_reason && (
               <div className="col-span-2 md:col-span-4">
                 <p className="text-gray-500">Ban Reason</p>
                 <p className="font-medium text-red-600">{selectedUser.ban_reason}</p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Expert verification modal */}
+      {showExpertModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Verify as Expert</h3>
+            <p className="text-sm text-gray-500 mb-4">This will set the user's role to <strong>expert</strong> and display a verified badge.</p>
+            <div className="space-y-3 mb-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Specialty *</label>
+                <input
+                  type="text"
+                  value={expertSpecialty}
+                  onChange={(e) => setExpertSpecialty(e.target.value)}
+                  placeholder="e.g. Pediatrician, Psychiatrist, Nutritionist..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Short bio (optional)</label>
+                <textarea
+                  value={expertBio}
+                  onChange={(e) => setExpertBio(e.target.value)}
+                  placeholder="Brief professional description shown on profile..."
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => { setShowExpertModal(false); setExpertUserId(null); }}
+                className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleVerifyExpert}
+                disabled={verifyExpertMutation.isPending || !expertSpecialty.trim()}
+                className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+              >
+                <BadgeCheck size={14} />
+                {verifyExpertMutation.isPending ? 'Verifying...' : 'Verify Expert'}
+              </button>
+            </div>
           </div>
         </div>
       )}

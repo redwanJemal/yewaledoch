@@ -129,6 +129,15 @@ class AdminUserResponse(BaseModel):
     comment_count: int
     reputation: int
     created_at: str
+    expert_verified: bool
+    expert_specialty: str | None
+    expert_bio: str | None
+
+
+class ExpertVerifyRequest(BaseModel):
+    """Verify a user as an expert professional."""
+    specialty: str = Field(..., min_length=1, max_length=100)
+    bio: str | None = Field(None, max_length=500)
 
 
 class AdminUserListResponse(BaseModel):
@@ -268,6 +277,9 @@ def admin_user_response(user: User) -> AdminUserResponse:
         comment_count=user.comment_count,
         reputation=user.reputation,
         created_at=user.created_at.isoformat(),
+        expert_verified=user.expert_verified,
+        expert_specialty=user.expert_specialty,
+        expert_bio=user.expert_bio,
     )
 
 
@@ -683,6 +695,49 @@ async def unban_user(
     user.ban_reason = None
 
     return {"message": "User unbanned", "is_banned": False}
+
+
+@router.post("/users/{user_id}/verify-expert")
+async def verify_expert(
+    user_id: uuid.UUID,
+    body: ExpertVerifyRequest,
+    admin: AdminUser,
+    db: AsyncSession = Depends(get_db),
+):
+    """Grant expert status to a verified professional (doctor, psychiatrist, etc.)."""
+    user = await db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.role = "expert"
+    user.expert_verified = True
+    user.expert_specialty = body.specialty
+    if body.bio is not None:
+        user.expert_bio = body.bio
+
+    await db.commit()
+    return {"message": f"User verified as expert ({body.specialty})", "role": "expert"}
+
+
+@router.post("/users/{user_id}/revoke-expert")
+async def revoke_expert(
+    user_id: uuid.UUID,
+    admin: AdminUser,
+    db: AsyncSession = Depends(get_db),
+):
+    """Revoke expert status from a user."""
+    user = await db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.expert_verified = False
+    user.expert_specialty = None
+    user.expert_bio = None
+    if user.role == "expert":
+        user.role = "member"
+
+    await db.commit()
+    return {"message": "Expert status revoked", "role": user.role}
 
 
 # --- Reports ---

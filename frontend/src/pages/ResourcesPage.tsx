@@ -12,11 +12,7 @@ interface ResourcesPageProps {
 }
 
 const resourceCards: { key: ResourceSection; emoji: string; labelKey: string }[] = [
-  { key: 'vaccines', emoji: '💉', labelKey: 'resources.vaccines' },
-  { key: 'recipes', emoji: '🍼', labelKey: 'resources.recipes' },
   { key: 'emergency', emoji: '📞', labelKey: 'resources.emergency' },
-  { key: 'milestones', emoji: '📊', labelKey: 'resources.milestones_guide' },
-  { key: 'pregnancy', emoji: '🤰', labelKey: 'resources.pregnancy_guide' },
 ];
 
 export function ResourcesPage({ onBack }: ResourcesPageProps) {
