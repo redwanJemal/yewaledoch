@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     # Telegram
     BOT_TOKEN: str = ""
     BOT_USERNAME: str = ""
+    BOT_NAME: str = "YeWaledoch"
+    BOT_DESCRIPTION: str = "የኢትዮጵያ ወላጆች ማህበረሰብ — ልምድ ይጋሩ፣ ምክር ያግኙ"
+    BOT_SHORT_DESCRIPTION: str = "Ethiopian Parenting Community"
     MINI_APP_URL: str = ""
 
     # Admin
