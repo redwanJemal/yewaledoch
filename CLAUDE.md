@@ -6,7 +6,7 @@ Telegram Mini App for Ethiopian parents. Content-first community: scrape Reddit'
 
 - **Backend**: Python 3.12, FastAPI, SQLAlchemy 2.0 (async), asyncpg, PostgreSQL 16, Redis 7, Alembic
 - **Frontend (Mini App)**: React 18, TypeScript, Vite 5, Tailwind CSS 3, Zustand, TanStack React Query 5, @telegram-apps/sdk-react
-- **Admin Backoffice**: React 18, TypeScript, Vite 5, Tailwind CSS 3 (separate SPA)
+- **Admin Backoffice**: Embedded inside the Mini App (role-gated to `admin` users, no separate SPA)
 - **Scraper**: Python, Reddit JSON API, Claude/Google Translate API
 - **Auth**: Telegram initData (HMAC-SHA256) → JWT (HS256, 7-day expiry)
 - **Deployment**: Docker Compose, Coolify, GitLab CI/CD
@@ -48,10 +48,10 @@ yewaledoch/
 │   ├── seed_data/               # Categories, vaccines, milestones JSON
 │   ├── requirements.txt
 │   └── Dockerfile
-├── frontend/                    # Telegram Mini App (parents use this)
+├── frontend/                    # Telegram Mini App (parents + admin panel)
 │   ├── src/
 │   │   ├── App.tsx              # Tab navigation, routing, deep links
-│   │   ├── pages/               # Page components
+│   │   ├── pages/               # Page components (incl. Admin* role-gated pages)
 │   │   ├── components/          # Shared components
 │   │   ├── hooks/               # useAuth, usePosts, useNotifications
 │   │   ├── lib/
@@ -60,9 +60,6 @@ yewaledoch/
 │   │   │   └── i18n.ts          # Amharic/English translations
 │   │   └── styles/
 │   ├── Dockerfile
-│   └── package.json
-├── admin/                       # Admin backoffice (separate SPA)
-│   ├── src/pages/               # Dashboard, DraftQueue, Scraper, etc.
 │   └── package.json
 ├── docker-compose.yml           # Dev: backend + postgres + redis
 ├── docker-compose.prod.yml      # Prod: with Coolify network
@@ -131,7 +128,6 @@ VITE_API_URL, VITE_BOT_USERNAME
 docker compose up -d                    # Start postgres + redis
 cd backend && uvicorn app.main:app --reload --port 8010
 cd frontend && npm run dev              # Port 5173, proxies to 8010
-cd admin && npm run dev                 # Port 5174
 
 # Migrations
 cd backend && alembic upgrade head

@@ -92,25 +92,6 @@ services:
       - yewaledoch-internal
       - coolify
 
-  # Admin Backoffice (separate SPA)
-  admin:
-    image: ${CI_REGISTRY_IMAGE:-yewaledoch}/admin:${IMAGE_TAG:-latest}
-    build:
-      context: ./admin
-      args:
-        - VITE_API_URL=${VITE_API_URL}
-    container_name: yewaledoch-admin
-    restart: unless-stopped
-    depends_on:
-      - backend
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    networks:
-      - yewaledoch-internal
-      - coolify
 
 volumes:
   postgres_data:
