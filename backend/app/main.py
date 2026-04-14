@@ -33,7 +33,9 @@ structlog.configure(
 logger = structlog.get_logger()
 
 
+logging.basicConfig(level=logging.INFO)
 bot_logger = logging.getLogger("bot.webhook")
+bot_logger.setLevel(logging.INFO)
 
 
 async def _setup_telegram_bot() -> None:
