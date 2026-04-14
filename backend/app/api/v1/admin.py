@@ -13,6 +13,7 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import AdminUser
 from app.core.database import get_db
 from app.models.comment import Comment
+from app.models.llm_settings import LLMSettings
 from app.models.notification import Notification
 from app.models.post import Post
 from app.models.report import Report
@@ -183,6 +184,26 @@ class BroadcastRequest(BaseModel):
     body: str = Field(..., min_length=1)
 
 
+class LLMSettingsResponse(BaseModel):
+    """LLM provider configuration (api_key masked)."""
+    id: str
+    provider: str
+    api_key_set: bool  # True if an API key is configured (key itself is never returned)
+    model: str
+    base_url: str | None
+    enabled: bool
+    updated_at: str
+
+
+class LLMSettingsUpdate(BaseModel):
+    """Update LLM provider configuration."""
+    provider: str = Field(..., pattern=r"^(anthropic|openai|deepseek|custom)$")
+    api_key: str | None = None  # None = keep existing key unchanged
+    model: str = Field(..., min_length=1)
+    base_url: str | None = None
+    enabled: bool = True
+
+
 # --- Helpers ---
 
 
@@ -247,6 +268,19 @@ def admin_user_response(user: User) -> AdminUserResponse:
         comment_count=user.comment_count,
         reputation=user.reputation,
         created_at=user.created_at.isoformat(),
+    )
+
+
+def llm_settings_to_response(row: LLMSettings) -> LLMSettingsResponse:
+    """Convert LLMSettings ORM row to API response (api_key masked)."""
+    return LLMSettingsResponse(
+        id=str(row.id),
+        provider=row.provider,
+        api_key_set=bool(row.api_key),
+        model=row.model,
+        base_url=row.base_url,
+        enabled=row.enabled,
+        updated_at=row.updated_at.isoformat(),
     )
 
 
@@ -358,6 +392,19 @@ async def list_drafts(
     )
 
 
+@router.get("/drafts/{draft_id}", response_model=DraftResponse)
+async def get_draft(
+    draft_id: uuid.UUID,
+    admin: AdminUser,
+    db: AsyncSession = Depends(get_db),
+):
+    """Get a single scraped draft."""
+    draft = await db.get(ScrapedDraft, draft_id)
+    if not draft:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    return draft_to_response(draft)
+
+
 @router.patch("/drafts/{draft_id}", response_model=DraftResponse)
 async def update_draft(
     draft_id: uuid.UUID,
@@ -374,6 +421,8 @@ async def update_draft(
     for field, value in update_data.items():
         setattr(draft, field, value)
 
+    await db.commit()
+    await db.refresh(draft)
     return draft_to_response(draft)
 
 
@@ -750,6 +799,161 @@ async def resolve_report(
     return {"message": f"Report {body.action}d", "status": report.status}
 
 
+# --- LLM Settings ---
+
+
+@router.get("/settings/llm", response_model=LLMSettingsResponse)
+async def get_llm_settings(
+    admin: AdminUser,
+    db: AsyncSession = Depends(get_db),
+):
+    """Get current LLM provider configuration. API key is never returned."""
+    result = await db.execute(select(LLMSettings).limit(1))
+    row = result.scalar_one_or_none()
+    if not row:
+        raise HTTPException(status_code=404, detail="No LLM settings configured yet")
+    return llm_settings_to_response(row)
+
+
+@router.put("/settings/llm", response_model=LLMSettingsResponse)
+async def upsert_llm_settings(
+    body: LLMSettingsUpdate,
+    admin: AdminUser,
+    db: AsyncSession = Depends(get_db),
+):
+    """Create or update LLM provider configuration."""
+    result = await db.execute(select(LLMSettings).limit(1))
+    row = result.scalar_one_or_none()
+
+    if row is None:
+        row = LLMSettings(
+            provider=body.provider,
+            api_key=body.api_key or "",
+            model=body.model,
+            base_url=body.base_url,
+            enabled=body.enabled,
+        )
+        db.add(row)
+    else:
+        row.provider = body.provider
+        row.model = body.model
+        row.base_url = body.base_url
+        row.enabled = body.enabled
+        # Only update api_key if a new one was provided
+        if body.api_key is not None:
+            row.api_key = body.api_key
+
+    await db.commit()
+    await db.refresh(row)
+    return llm_settings_to_response(row)
+
+
+@router.post("/settings/llm/test")
+async def test_llm_settings(
+    admin: AdminUser,
+    db: AsyncSession = Depends(get_db),
+):
+    """Test the configured LLM provider with a minimal translation request."""
+    from scraper.translator import LLMConfig, translate_post
+
+    result = await db.execute(select(LLMSettings).limit(1))
+    row = result.scalar_one_or_none()
+
+    if not row or not row.api_key:
+        raise HTTPException(status_code=400, detail="No LLM settings configured")
+    if not row.enabled:
+        raise HTTPException(status_code=400, detail="LLM settings are disabled")
+
+    config = LLMConfig(
+        provider=row.provider,
+        api_key=row.api_key,
+        model=row.model,
+        base_url=row.base_url,
+    )
+
+    translation = await translate_post(
+        title="Hello",
+        body="This is a test.",
+        comments=[],
+        llm_config=config,
+    )
+
+    if translation is None:
+        raise HTTPException(status_code=502, detail="Translation test failed — check provider settings and API key")
+
+    return {"ok": True, "provider": row.provider, "model": row.model}
+
+
+# --- Re-translate Draft ---
+
+
+@router.post("/drafts/{draft_id}/translate", response_model=DraftResponse)
+async def translate_draft(
+    draft_id: uuid.UUID,
+    admin: AdminUser,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    (Re-)translate a draft using the configured LLM provider.
+
+    Overwrites translated_title, translated_body, translated_comments, and category.
+    Only works on pending drafts.
+    """
+    from scraper.translator import LLMConfig, translate_post
+
+    draft = await db.get(ScrapedDraft, draft_id)
+    if not draft:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    if draft.status != "pending":
+        raise HTTPException(status_code=400, detail="Only pending drafts can be re-translated")
+    if not draft.original_title or not draft.original_body:
+        raise HTTPException(status_code=400, detail="Draft has no original content to translate")
+
+    # Load LLM config from DB, fall back to env var
+    settings_result = await db.execute(
+        select(LLMSettings).where(LLMSettings.enabled == True).limit(1)  # noqa: E712
+    )
+    llm_row = settings_result.scalar_one_or_none()
+
+    if llm_row and llm_row.api_key:
+        config: LLMConfig | None = LLMConfig(
+            provider=llm_row.provider,
+            api_key=llm_row.api_key,
+            model=llm_row.model,
+            base_url=llm_row.base_url,
+        )
+    else:
+        config = LLMConfig.from_env()
+
+    if config is None:
+        raise HTTPException(
+            status_code=400,
+            detail="No LLM provider configured — add settings under Settings > LLM Provider",
+        )
+
+    translation = await translate_post(
+        title=draft.original_title,
+        body=draft.original_body,
+        comments=draft.top_comments or [],
+        llm_config=config,
+    )
+
+    if translation is None:
+        raise HTTPException(
+            status_code=502,
+            detail="Translation failed — check provider settings and API key",
+        )
+
+    draft.translated_title = translation["translated_title"]
+    draft.translated_body = translation["translated_body"]
+    draft.translated_comments = translation.get("translated_comments", [])
+    if translation.get("suggested_category"):
+        draft.category = translation["suggested_category"]
+
+    await db.flush()
+    return draft_to_response(draft)
+
+
 # --- Scraper Control ---
 
 
@@ -769,7 +973,7 @@ async def trigger_scraper(
             import structlog
             structlog.get_logger(__name__).error("background_scraper_failed", exc_info=True)
 
-    background_tasks.add_task(asyncio.to_thread, lambda: asyncio.run(run_scraper()))
+    background_tasks.add_task(run_scraper)
 
     return {"message": "Scraper pipeline triggered in background"}
 

@@ -344,35 +344,95 @@ export interface DashboardStats {
   total_users: number;
   total_posts: number;
   total_comments: number;
+  new_users_today: number;
+  posts_today: number;
+  comments_today: number;
+  active_users_24h: number;
   pending_drafts: number;
   pending_reports: number;
-  users_today: number;
-  posts_today: number;
 }
 
 export interface ScrapedDraft {
   id: string;
-  title: string;
-  body: string;
-  title_am: string;
-  body_am: string;
-  source_url: string;
-  source_subreddit: string;
-  source_upvotes: number;
-  category: string;
+  reddit_post_id: string;
+  reddit_url: string | null;
+  subreddit: string | null;
+  original_title: string | null;
+  original_body: string | null;
+  original_upvotes: number | null;
+  original_comments: number | null;
+  translated_title: string | null;
+  translated_body: string | null;
   status: string;
-  created_at: string;
+  category: string | null;
+  notes: string | null;
+  scraped_at: string;
+  reviewed_at: string | null;
+  published_post_id: string | null;
+}
+
+export interface LLMSettings {
+  id: string;
+  provider: string;
+  api_key_set: boolean;
+  model: string;
+  base_url: string | null;
+  enabled: boolean;
+  updated_at: string;
 }
 
 export interface Report {
   id: string;
   reporter_id: string;
-  target_type: string;
-  target_id: string;
+  reporter_name: string | null;
+  post_id: string | null;
+  comment_id: string | null;
   reason: string;
   details: string | null;
   status: string;
   created_at: string;
+  resolved_at: string | null;
+}
+
+export interface AdminPost {
+  id: string;
+  title: string;
+  body: string;
+  post_type: string;
+  category: string;
+  status: string;
+  is_pinned: boolean;
+  is_featured: boolean;
+  like_count: number;
+  comment_count: number;
+  view_count: number;
+  created_at: string;
+  published_at: string | null;
+  author_id: string;
+  author_name: string | null;
+}
+
+export interface AdminUser {
+  id: string;
+  telegram_id: number;
+  first_name: string | null;
+  last_name: string | null;
+  username: string | null;
+  role: string;
+  is_banned: boolean;
+  ban_reason: string | null;
+  post_count: number;
+  comment_count: number;
+  reputation: number;
+  created_at: string;
+}
+
+export interface AdminListResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  per_page: number;
+  has_more: boolean;
 }
 
 // ─── API Modules ──────────────────────────────────────────────────────────────
@@ -593,10 +653,20 @@ export const adminApi = {
 
   getDraft: (draftId: string) => request<ScrapedDraft>(`/admin/drafts/${draftId}`),
 
-  updateDraft: (draftId: string, data: { title_am?: string; body_am?: string; category?: string }) =>
+  updateDraft: (draftId: string, data: {
+    translated_title?: string;
+    translated_body?: string;
+    category?: string;
+    notes?: string;
+  }) =>
     request<ScrapedDraft>(`/admin/drafts/${draftId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
+    }),
+
+  translateDraft: (draftId: string) =>
+    request<ScrapedDraft>(`/admin/drafts/${draftId}/translate`, {
+      method: 'POST',
     }),
 
   publishDraft: (draftId: string) =>
@@ -609,22 +679,27 @@ export const adminApi = {
       method: 'DELETE',
     }),
 
-  posts: (params: { page?: number; per_page?: number; status?: string } = {}) => {
+  posts: (params: { page?: number; per_page?: number; status?: string; search?: string } = {}) => {
     const searchParams = new URLSearchParams();
     if (params.page) searchParams.set('page', String(params.page));
     if (params.per_page) searchParams.set('per_page', String(params.per_page));
     if (params.status) searchParams.set('status', params.status);
+    if (params.search) searchParams.set('search', params.search);
     const query = searchParams.toString();
-    return request<PostListResponse>(`/admin/posts${query ? `?${query}` : ''}`);
+    return request<AdminListResponse<AdminPost>>(`/admin/posts${query ? `?${query}` : ''}`);
   },
 
-  users: (params: { page?: number; per_page?: number; role?: string } = {}) => {
+  deletePost: (postId: string) =>
+    request<{ message: string }>(`/admin/posts/${postId}`, { method: 'DELETE' }),
+
+  users: (params: { page?: number; per_page?: number; role?: string; search?: string } = {}) => {
     const searchParams = new URLSearchParams();
     if (params.page) searchParams.set('page', String(params.page));
     if (params.per_page) searchParams.set('per_page', String(params.per_page));
     if (params.role) searchParams.set('role', params.role);
+    if (params.search) searchParams.set('search', params.search);
     const query = searchParams.toString();
-    return request<{ items: User[]; total: number; has_more: boolean }>(
+    return request<AdminListResponse<AdminUser>>(
       `/admin/users${query ? `?${query}` : ''}`
     );
   },
@@ -636,9 +711,9 @@ export const adminApi = {
     }),
 
   banUser: (userId: string, reason: string) =>
-    request<User>(`/admin/users/${userId}/ban`, {
+    request<{ message: string; is_banned: boolean }>(`/admin/users/${userId}/ban`, {
       method: 'POST',
-      body: JSON.stringify({ reason }),
+      body: JSON.stringify({ ban_reason: reason }),
     }),
 
   unbanUser: (userId: string) =>
@@ -658,14 +733,31 @@ export const adminApi = {
   },
 
   resolveReport: (reportId: string, action: 'dismiss' | 'remove' | 'ban') =>
-    request<{ message: string }>(`/admin/reports/${reportId}/resolve`, {
+    request<{ message: string }>(`/admin/reports/${reportId}/action`, {
       method: 'POST',
       body: JSON.stringify({ action }),
     }),
 
-  triggerScraper: (subreddit?: string, limit?: number) =>
-    request<{ message: string }>('/admin/scraper/run', {
+  triggerScraper: () =>
+    request<{ message: string }>('/admin/scraper/run', { method: 'POST' }),
+
+  getLLMSettings: () =>
+    request<LLMSettings>('/admin/settings/llm'),
+
+  saveLLMSettings: (data: {
+    provider: string;
+    api_key?: string | null;
+    model: string;
+    base_url?: string | null;
+    enabled: boolean;
+  }) =>
+    request<LLMSettings>('/admin/settings/llm', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  testLLMSettings: () =>
+    request<{ ok: boolean; provider: string; model: string }>('/admin/settings/llm/test', {
       method: 'POST',
-      body: JSON.stringify({ subreddit, limit }),
     }),
 };

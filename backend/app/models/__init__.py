@@ -3,6 +3,7 @@
 from app.models.child import Child
 from app.models.comment import Comment
 from app.models.like import Like
+from app.models.llm_settings import LLMSettings
 from app.models.milestone import Milestone
 from app.models.notification import Notification
 from app.models.post import Post
@@ -16,6 +17,7 @@ __all__ = [
     "Child",
     "Comment",
     "Like",
+    "LLMSettings",
     "Milestone",
     "Notification",
     "Post",

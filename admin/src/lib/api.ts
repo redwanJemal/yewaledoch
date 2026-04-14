@@ -175,6 +175,24 @@ export interface User {
   created_at: string;
 }
 
+export interface LLMSettings {
+  id: string;
+  provider: string;
+  api_key_set: boolean;
+  model: string;
+  base_url: string | null;
+  enabled: boolean;
+  updated_at: string;
+}
+
+export interface LLMSettingsUpdate {
+  provider: string;
+  api_key?: string | null;
+  model: string;
+  base_url?: string | null;
+  enabled: boolean;
+}
+
 // ─── API Modules ──────────────────────────────────────────────────────────────
 
 export const authApi = {
@@ -324,5 +342,26 @@ export const adminApi = {
     request<{ message: string }>('/admin/broadcast', {
       method: 'POST',
       body: JSON.stringify({ title, body }),
+    }),
+
+  // LLM Settings
+  getLLMSettings: () =>
+    request<LLMSettings>('/admin/settings/llm'),
+
+  saveLLMSettings: (data: LLMSettingsUpdate) =>
+    request<LLMSettings>('/admin/settings/llm', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  testLLMSettings: () =>
+    request<{ ok: boolean; provider: string; model: string }>('/admin/settings/llm/test', {
+      method: 'POST',
+    }),
+
+  // Re-translate a draft
+  translateDraft: (draftId: string) =>
+    request<ScrapedDraft>(`/admin/drafts/${draftId}/translate`, {
+      method: 'POST',
     }),
 };

@@ -39,7 +39,7 @@ services:
       SECRET_KEY: b7c4e9a2d1f8365e0c9a7b2d4f6e8a1c3d5b7f9e2a4c6d8e0f1a3b5c7d9e1f
       JWT_SECRET: 71e73a2f175e24c920d211e50f7cf079c8f97c63d3223f0a0daeb1f47a004de2
       DEBUG: "false"
-      CORS_ORIGINS: '["https://fit.endlessmaker.com"]'
+      CORS_ORIGINS: "*"
       ADMIN_TELEGRAM_IDS: "482306502"
       ANTHROPIC_API_KEY: ""
       MINIO_ENDPOINT: "https://storage.endlessmaker.com"
@@ -57,6 +57,15 @@ services:
   yewaledoch-web:
     container_name: yewaledoch-web
     build: ./frontend
+    depends_on:
+      - yewaledoch-api
+    networks:
+      - internal
+      - coolify
+
+  yewaledoch-admin:
+    container_name: yewaledoch-admin
+    build: ./admin
     depends_on:
       - yewaledoch-api
     networks:

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Save, Check, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Check, Trash2, Languages } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { adminApi } from '@/lib/api';
 import { toast } from 'sonner';
@@ -73,6 +73,19 @@ export default function DraftEditPage() {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  const translateMutation = useMutation({
+    mutationFn: () => adminApi.translateDraft(draftId!),
+    onSuccess: (updated) => {
+      toast.success('Translation updated');
+      setTranslatedTitle(updated.translated_title || '');
+      setTranslatedBody(updated.translated_body || '');
+      setCategory(updated.category || '');
+      queryClient.invalidateQueries({ queryKey: ['draft', draftId] });
+      queryClient.invalidateQueries({ queryKey: ['drafts'] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -116,6 +129,15 @@ export default function DraftEditPage() {
           </button>
           {isPending && (
             <>
+              <button
+                onClick={() => translateMutation.mutate()}
+                disabled={translateMutation.isPending}
+                title="Re-translate using the configured LLM provider"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-purple-700 bg-purple-50 rounded-lg hover:bg-purple-100"
+              >
+                <Languages size={16} />
+                {translateMutation.isPending ? 'Translating...' : 'Translate'}
+              </button>
               <button
                 onClick={() => updateMutation.mutate()}
                 disabled={updateMutation.isPending}

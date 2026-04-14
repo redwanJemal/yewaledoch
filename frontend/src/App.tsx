@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Home, FolderOpen, PenSquare, Bell, User } from 'lucide-react';
+import { Home, FolderOpen, PenSquare, Bell, User, ShieldCheck } from 'lucide-react';
 import { useTelegram } from '@/lib/telegram';
 import { useAuth } from '@/hooks/useAuth';
 import { notificationsApi } from '@/lib/api';
@@ -17,8 +17,15 @@ import { SavedPostsPage } from '@/pages/SavedPostsPage';
 import { ResourcesPage } from '@/pages/ResourcesPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { EditPostPage } from '@/pages/EditPostPage';
+import { AdminPage } from '@/pages/AdminPage';
+import { AdminDraftQueuePage } from '@/pages/AdminDraftQueuePage';
+import { AdminDraftEditPage } from '@/pages/AdminDraftEditPage';
+import { AdminLLMSettingsPage } from '@/pages/AdminLLMSettingsPage';
+import { AdminUsersPage } from '@/pages/AdminUsersPage';
+import { AdminContentPage } from '@/pages/AdminContentPage';
+import { AdminReportsPage } from '@/pages/AdminReportsPage';
 import { AddChildModal } from '@/components/AddChildModal';
-import type { Post } from '@/lib/api';
+import type { Post, ScrapedDraft } from '@/lib/api';
 
 // Parse deep link at module level — guaranteed to run before any React rendering
 function getInitialDeepLink(): { type: 'post-detail'; postId: string } | null {
@@ -35,8 +42,11 @@ function getInitialDeepLink(): { type: 'post-detail'; postId: string } | null {
 }
 const DEEP_LINK = getInitialDeepLink();
 
-type TabType = 'home' | 'topics' | 'write' | 'alerts' | 'me';
-type PageType = 'main' | 'post-detail' | 'edit-post' | 'topic-feed' | 'child-profile' | 'my-posts' | 'saved-posts' | 'resources' | 'settings';
+type TabType = 'home' | 'topics' | 'write' | 'alerts' | 'me' | 'admin';
+type PageType =
+  | 'main' | 'post-detail' | 'edit-post' | 'topic-feed'
+  | 'child-profile' | 'my-posts' | 'saved-posts' | 'resources' | 'settings'
+  | 'admin-drafts' | 'admin-draft-edit' | 'admin-llm' | 'admin-content' | 'admin-users' | 'admin-reports';
 
 interface PageState {
   type: PageType;
@@ -44,6 +54,7 @@ interface PageState {
   childId?: string;
   category?: string;
   editPost?: Post;
+  draft?: ScrapedDraft;
 }
 
 function AppContent() {
@@ -242,6 +253,48 @@ function AppContent() {
     );
   }
 
+  // ── Admin pages (role-gated) ──────────────────────────────────────────────
+  if (user?.role === 'admin') {
+    if (page.type === 'admin-drafts') {
+      return (
+        <AdminDraftQueuePage
+          onBack={() => setPage({ type: 'main' })}
+          onEditDraft={(draft) => setPage({ type: 'admin-draft-edit', draft })}
+        />
+      );
+    }
+    if (page.type === 'admin-draft-edit' && page.draft) {
+      return (
+        <AdminDraftEditPage
+          draftId={page.draft.id}
+          onBack={() => setPage({ type: 'admin-drafts' })}
+        />
+      );
+    }
+    if (page.type === 'admin-llm') {
+      return (
+        <AdminLLMSettingsPage
+          onBack={() => setPage({ type: 'main' })}
+        />
+      );
+    }
+    if (page.type === 'admin-users') {
+      return (
+        <AdminUsersPage onBack={() => setPage({ type: 'main' })} />
+      );
+    }
+    if (page.type === 'admin-content') {
+      return (
+        <AdminContentPage onBack={() => setPage({ type: 'main' })} />
+      );
+    }
+    if (page.type === 'admin-reports') {
+      return (
+        <AdminReportsPage onBack={() => setPage({ type: 'main' })} />
+      );
+    }
+  }
+
   return (
     <div className="min-h-screen bg-tg-bg text-tg-text">
       {/* Main Content */}
@@ -272,6 +325,12 @@ function AppContent() {
         )}
         {activeTab === 'me' && user && (
           <ProfilePage user={user} onNavigate={handleProfileNavigate} />
+        )}
+        {activeTab === 'admin' && user?.role === 'admin' && (
+          <AdminPage
+            user={user}
+            onNavigate={(p) => setPage({ type: p as PageType })}
+          />
         )}
       </main>
 
@@ -323,6 +382,14 @@ function AppContent() {
               isActive={activeTab === 'me'}
               onClick={() => handleTabChange('me')}
             />
+            {user?.role === 'admin' && (
+              <NavItem
+                icon={<ShieldCheck className="w-6 h-6" />}
+                label="Admin"
+                isActive={activeTab === 'admin'}
+                onClick={() => handleTabChange('admin')}
+              />
+            )}
           </div>
         </nav>
       )}

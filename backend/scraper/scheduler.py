@@ -11,7 +11,7 @@ from app.core.config import settings
 from app.core.database import get_db_context
 from app.models.scraped_draft import ScrapedDraft
 from scraper.reddit_scraper import scrape_reddit
-from scraper.translator import translate_post
+from scraper.translator import LLMConfig, translate_post
 
 logger = structlog.get_logger(__name__)
 
@@ -21,6 +21,35 @@ async def get_existing_reddit_ids() -> set[str]:
     async with get_db_context() as db:
         result = await db.execute(select(ScrapedDraft.reddit_post_id))
         return {row[0] for row in result.all()}
+
+
+async def load_llm_config_from_db() -> LLMConfig | None:
+    """
+    Load LLM provider settings from the database.
+
+    Returns the DB config if one exists and is enabled, otherwise falls back
+    to the ANTHROPIC_API_KEY environment variable.
+    """
+    try:
+        from app.models.llm_settings import LLMSettings
+
+        async with get_db_context() as db:
+            result = await db.execute(
+                select(LLMSettings).where(LLMSettings.enabled == True).limit(1)  # noqa: E712
+            )
+            row = result.scalar_one_or_none()
+            if row and row.api_key:
+                return LLMConfig(
+                    provider=row.provider,
+                    api_key=row.api_key,
+                    model=row.model,
+                    base_url=row.base_url,
+                )
+    except Exception as e:
+        logger.warning("llm_config_db_load_failed", error=str(e))
+
+    # Fall back to environment variable
+    return LLMConfig.from_env()
 
 
 async def save_draft(post: dict, translation: dict | None) -> None:
@@ -88,7 +117,14 @@ async def run_pipeline() -> dict:
     existing_ids = await get_existing_reddit_ids()
     logger.info("existing_drafts_loaded", count=len(existing_ids))
 
-    # Step 2: Scrape new posts from Reddit
+    # Step 2: Load LLM config once (DB settings take priority over env vars)
+    llm_config = await load_llm_config_from_db()
+    if llm_config:
+        logger.info("llm_config_loaded", provider=llm_config.provider, model=llm_config.model)
+    else:
+        logger.warning("llm_config_unavailable", reason="no API key configured")
+
+    # Step 3: Scrape new posts from Reddit
     try:
         posts = await scrape_reddit(existing_reddit_ids=existing_ids)
     except Exception as e:
@@ -101,24 +137,23 @@ async def run_pipeline() -> dict:
 
     logger.info("posts_scraped", count=len(posts))
 
-    # Step 3: Translate and save each post
+    # Step 4: Translate and save each post
     translated_count = 0
     saved_count = 0
     error_count = 0
 
     for post in posts:
         try:
-            # Translate via AI
             translation = await translate_post(
                 title=post["title"],
                 body=post["selftext"],
                 comments=post.get("top_comments", []),
+                llm_config=llm_config,
             )
 
             if translation:
                 translated_count += 1
 
-            # Save draft (with or without translation)
             await save_draft(post, translation)
             saved_count += 1
 
@@ -130,7 +165,7 @@ async def run_pipeline() -> dict:
                 error=str(e),
             )
 
-    # Step 4: Notify admins
+    # Step 5: Notify admins
     if saved_count > 0:
         await notify_admins(saved_count)
 
@@ -146,7 +181,6 @@ async def run_pipeline() -> dict:
 
 def main() -> None:
     """Entry point for `python -m scraper.scheduler`."""
-    # Configure structlog for CLI output
     structlog.configure(
         processors=[
             structlog.contextvars.merge_contextvars,

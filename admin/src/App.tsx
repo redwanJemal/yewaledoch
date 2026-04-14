@@ -6,6 +6,7 @@ import {
   FileText,
   Users,
   Flag,
+  Rss,
   Settings,
   LogOut,
   Menu,
@@ -19,6 +20,7 @@ import ContentManagementPage from './pages/ContentManagementPage';
 import UserManagementPage from './pages/UserManagementPage';
 import ReportsPage from './pages/ReportsPage';
 import ScraperPage from './pages/ScraperPage';
+import SettingsPage from './pages/SettingsPage';
 import LoginPage from './pages/LoginPage';
 
 const NAV_ITEMS = [
@@ -27,7 +29,8 @@ const NAV_ITEMS = [
   { to: '/content', icon: FileText, label: 'Content' },
   { to: '/users', icon: Users, label: 'Users' },
   { to: '/reports', icon: Flag, label: 'Reports' },
-  { to: '/scraper', icon: Settings, label: 'Scraper' },
+  { to: '/scraper', icon: Rss, label: 'Scraper' },
+  { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
 function AdminLayout() {
@@ -134,6 +137,7 @@ function AdminLayout() {
             <Route path="/users" element={<UserManagementPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/scraper" element={<ScraperPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

@@ -77,6 +77,8 @@ async def auth_telegram(
     )
     user = result.scalar_one_or_none()
 
+    is_admin = telegram_id in settings.admin_ids
+
     if user is None:
         user = User(
             telegram_id=telegram_id,
@@ -84,12 +86,15 @@ async def auth_telegram(
             first_name=tg_user.get("first_name", "User"),
             last_name=tg_user.get("last_name"),
             photo_url=tg_user.get("photo_url"),
-            role="member",
+            role="admin" if is_admin else "member",
         )
         db.add(user)
         await db.flush()
     else:
         user.update_from_telegram(tg_user)
+        # Always keep admin role in sync with ADMIN_TELEGRAM_IDS
+        if is_admin and user.role != "admin":
+            user.role = "admin"
 
     if user.is_banned:
         raise HTTPException(
