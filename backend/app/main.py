@@ -36,24 +36,68 @@ logger = structlog.get_logger()
 bot_logger = logging.getLogger("bot.webhook")
 
 
+async def _setup_telegram_bot() -> None:
+    """Register webhook, commands, menu button, name, and description with Telegram."""
+    base = f"https://api.telegram.org/bot{settings.BOT_TOKEN}"
+    webhook_url = f"{settings.MINI_APP_URL}/api/v1/bot/webhook"
+
+    calls = [
+        # Webhook
+        (
+            "setWebhook",
+            {"url": webhook_url, "allowed_updates": ["message"]},
+        ),
+        # Bot commands shown in the menu
+        (
+            "setMyCommands",
+            {
+                "commands": [
+                    {"command": "start", "description": "Open YeWaledoch"},
+                    {"command": "help", "description": "Help & info"},
+                ]
+            },
+        ),
+        # Mini App button in the chat menu bar
+        (
+            "setChatMenuButton",
+            {
+                "menu_button": {
+                    "type": "web_app",
+                    "text": settings.BOT_NAME,
+                    "web_app": {"url": settings.MINI_APP_URL},
+                }
+            },
+        ),
+        # Bot display name
+        ("setMyName", {"name": settings.BOT_NAME}),
+        # Full description (shown on bot profile page)
+        ("setMyDescription", {"description": settings.BOT_DESCRIPTION}),
+        # Short description (shown before /start)
+        ("setMyShortDescription", {"short_description": settings.BOT_SHORT_DESCRIPTION}),
+    ]
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        for method, payload in calls:
+            try:
+                resp = await client.post(f"{base}/{method}", json=payload)
+                data = resp.json()
+                if data.get("ok"):
+                    bot_logger.info("Bot setup OK: %s", method)
+                else:
+                    bot_logger.warning("Bot setup failed: %s → %s", method, data.get("description"))
+            except Exception as exc:
+                bot_logger.warning("Bot setup error: %s → %s", method, exc)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     logger.info("application_starting", app_name=settings.APP_NAME)
     await rate_limiter.connect()
 
-    # Register Telegram bot webhook
+    # Configure Telegram bot on startup
     if settings.BOT_TOKEN and settings.MINI_APP_URL:
-        webhook_url = f"{settings.MINI_APP_URL}/api/v1/bot/webhook"
-        try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                resp = await client.post(
-                    f"https://api.telegram.org/bot{settings.BOT_TOKEN}/setWebhook",
-                    json={"url": webhook_url, "allowed_updates": ["message"]},
-                )
-                bot_logger.info("Webhook set: %s", resp.json())
-        except Exception as e:
-            bot_logger.warning("Failed to set webhook: %s", e)
+        await _setup_telegram_bot()
 
     yield
     await rate_limiter.close()

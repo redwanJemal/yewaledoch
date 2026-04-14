@@ -3,13 +3,13 @@ services:
     container_name: yewaledoch-db
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: yewaledoch
-      POSTGRES_USER: yewaledoch
-      POSTGRES_PASSWORD: a3f8e2c91b5d7a4f6e0c3d9b8a1f7e2d
+      POSTGRES_DB: ${POSTGRES_DB:-yewaledoch}
+      POSTGRES_USER: ${POSTGRES_USER:-yewaledoch}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U yewaledoch"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-yewaledoch}"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -31,21 +31,24 @@ services:
     container_name: yewaledoch-api
     build: ./backend
     environment:
-      DATABASE_URL: postgresql+asyncpg://yewaledoch:a3f8e2c91b5d7a4f6e0c3d9b8a1f7e2d@yewaledoch-db:5432/yewaledoch
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-yewaledoch}:${POSTGRES_PASSWORD}@yewaledoch-db:5432/${POSTGRES_DB:-yewaledoch}
       REDIS_URL: redis://yewaledoch-redis:6379/0
-      BOT_TOKEN: "906122716:AAEP4koaCzZZCdVpQJ579HmiUPoRIPaZSLg"
-      BOT_USERNAME: "Ahbabisbot"
-      MINI_APP_URL: https://fit.endlessmaker.com
-      SECRET_KEY: b7c4e9a2d1f8365e0c9a7b2d4f6e8a1c3d5b7f9e2a4c6d8e0f1a3b5c7d9e1f
-      JWT_SECRET: 71e73a2f175e24c920d211e50f7cf079c8f97c63d3223f0a0daeb1f47a004de2
+      BOT_TOKEN: ${BOT_TOKEN}
+      BOT_USERNAME: ${BOT_USERNAME}
+      BOT_NAME: ${BOT_NAME:-YeWaledoch}
+      BOT_DESCRIPTION: ${BOT_DESCRIPTION:-የኢትዮጵያ ወላጆች ማህበረሰብ — ልምድ ይጋሩ፣ ምክር ያግኙ}
+      BOT_SHORT_DESCRIPTION: ${BOT_SHORT_DESCRIPTION:-Ethiopian Parenting Community}
+      MINI_APP_URL: ${MINI_APP_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      JWT_SECRET: ${JWT_SECRET}
       DEBUG: "false"
-      CORS_ORIGINS: "*"
-      ADMIN_TELEGRAM_IDS: "482306502"
-      ANTHROPIC_API_KEY: ""
-      MINIO_ENDPOINT: "https://storage.endlessmaker.com"
-      MINIO_ACCESS_KEY: "JlGG4ms93ytKKVD83"
-      MINIO_SECRET_KEY: "mXes5yW3bxr34jolnuhW3P7psVpwtHL9z"
-      MINIO_BUCKET: "yewaledoch"
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      ADMIN_TELEGRAM_IDS: ${ADMIN_TELEGRAM_IDS}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-yewaledoch}
     depends_on:
       yewaledoch-db:
         condition: service_healthy
@@ -56,13 +59,16 @@ services:
 
   yewaledoch-web:
     container_name: yewaledoch-web
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+        VITE_BOT_USERNAME: ${VITE_BOT_USERNAME:-${BOT_USERNAME}}
     depends_on:
       - yewaledoch-api
     networks:
       - internal
       - coolify
-
 
 volumes:
   pgdata:
